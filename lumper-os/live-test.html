@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LumperOS Live Test</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0B0F1A; color: white; font-family: 'DM Sans', sans-serif; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        // This is where your App.js code lives now
+        const App = () => {
+            const [pay, setPay] = React.useState(0);
+            const tax = pay * 0.35;
+            const net = pay - tax;
+
+            return (
+                <div className="p-8 max-w-md mx-auto bg-[#111827] rounded-3xl border border-white/10 shadow-2xl mt-10">
+                    <h1 className="text-2xl font-bold text-[#FB923C] mb-6">Lumper OS — Add Job</h1>
+                    
+                    <label className="block text-xs uppercase tracking-widest text-slate-500 mb-2">Company Name</label>
+                    <select className="w-full bg-[#1A2436] border border-white/10 p-3 rounded-xl mb-4 text-white">
+                        <option>Canada Lumper Services (CLSI)</option>
+                        <option>Direct Warehouse</option>
+                    </select>
+
+                    <label className="block text-xs uppercase tracking-widest text-slate-500 mb-2">Base Pay ($)</label>
+                    <input 
+                        type="number" 
+                        onChange={(e) => setPay(e.target.value)}
+                        className="w-full bg-[#1A2436] border border-white/10 p-3 rounded-xl mb-6 text-[#FB923C] font-mono text-xl"
+                        placeholder="0.00"
+                    />
+
+                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
+                        <div>
+                            <p className="text-[10px] uppercase text-slate-500">Tax Reserve (35%)</p>
+                            <p className="text-red-400 font-mono text-lg">-${tax.toFixed(2)}</p>
+                        </div>
+                        <div>
+                            <p className="text-[10px] uppercase text-slate-500">Net Profit</p>
+                            <p className="text-[#4ADE80] font-mono text-lg">${net.toFixed(2)}</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
