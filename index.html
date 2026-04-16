@@ -1,10 +1,297 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta http-equiv="refresh" content="0; url=lumper-os/live-test.html">
-    <title>LumperOS Redirect</title>
+  <title>LumperOS Live Test</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --bg-base:           #0B0F1A;
+      --bg-card:           #111827;
+      --bg-card-2:         #161E2E;
+      --bg-hover:          #1A2436;
+      --border:            rgba(255,255,255,0.06);
+      --border-accent:     rgba(251,146,60,0.3);
+      --accent-orange:     #FB923C;
+      --accent-orange-dim: rgba(251,146,60,0.15);
+      --accent-teal:       #2DD4BF;
+      --accent-teal-dim:   rgba(45,212,191,0.15);
+      --accent-green:      #4ADE80;
+      --accent-red:        #F87171;
+      --text-primary:      #F1F5F9;
+      --text-secondary:    #94A3B8;
+      --text-muted:        #475569;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg-base);
+      color: var(--text-primary);
+      font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      width: 480px;
+      max-width: 100%;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+    }
+
+    .card-title {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--accent-orange);
+      margin-bottom: 4px;
+    }
+
+    .card-sub {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 28px;
+    }
+
+    label {
+      display: block;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 7px;
+    }
+
+    .field { margin-bottom: 18px; }
+
+    select, input {
+      width: 100%;
+      background: var(--bg-card-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 14px;
+      color: var(--text-primary);
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s;
+      appearance: none;
+    }
+
+    select:focus, input:focus { border-color: var(--accent-orange); }
+    input::placeholder { color: var(--text-muted); }
+
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394A3B8' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 38px;
+      cursor: pointer;
+    }
+
+    .select-wrap { position: relative; }
+
+    .default-badge {
+      position: absolute;
+      right: 38px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--accent-orange-dim);
+      border: 1px solid var(--border-accent);
+      color: var(--accent-orange);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      pointer-events: none;
+    }
+
+    #pay {
+      font-family: 'Courier New', monospace;
+      font-size: 20px;
+      color: var(--accent-orange);
+    }
+
+    .divider { height: 1px; background: var(--border); margin: 22px 0; }
+
+    .net-box {
+      background: var(--bg-card-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 20px;
+    }
+
+    .net-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .net-label { font-size: 12px; color: var(--text-muted); }
+
+    .net-val {
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .net-sep { height: 1px; background: var(--border); margin: 12px 0; }
+
+    .net-total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .net-total-label {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .net-total-val {
+      font-family: 'Courier New', monospace;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      color: var(--accent-green);
+    }
+
+    .net-total-val.zero { color: var(--text-muted); }
+
+    .footer { display: flex; gap: 10px; margin-top: 24px; }
+
+    .btn {
+      flex: 1;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-ghost:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+    .btn-primary {
+      background: var(--accent-orange);
+      color: #000;
+      box-shadow: 0 0 20px rgba(251,146,60,0.35);
+    }
+
+    .btn-primary:hover { box-shadow: 0 0 30px rgba(251,146,60,0.55); }
+  </style>
 </head>
 <body>
-    <p>Loading LumperOS... If you are not redirected, <a href="lumper-os/live-test.html">click here</a>.</p>
+  <div class="card">
+    <div class="card-title">LumperOS — Add Job</div>
+    <div class="card-sub">Log a container — net pay calculates live below.</div>
+
+    <div class="field">
+      <label>Quick Select Company</label>
+      <div class="select-wrap">
+        <select id="company-select" onchange="onSelectChange(this)">
+          <option>Canada Lumper Services</option>
+          <option>Trojan Lumping Services</option>
+          <option>Container Guyz</option>
+          <option>Brothers Container Service</option>
+          <option>QuickCan Lumping Service</option>
+          <option>Great North Lumper Services</option>
+          <option>National Lumpers</option>
+        </select>
+        <span class="default-badge" id="default-badge">DEFAULT</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Company Name</label>
+      <input type="text" id="company-name" value="Canada Lumper Services" placeholder="e.g. TAS Refrigerated">
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div class="field">
+        <label>Supervisor</label>
+        <input type="text" placeholder="e.g. Julian">
+      </div>
+      <div class="field">
+        <label>Base Pay ($)</label>
+        <input type="number" id="pay" placeholder="0.00" min="0" step="0.01" oninput="calc(this.value)">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Pieces / SKUs</label>
+      <input type="number" style="font-family:'Courier New',monospace" placeholder="e.g. 318">
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="net-box">
+      <div class="net-row">
+        <span class="net-label">Base Pay</span>
+        <span class="net-val" id="disp-base" style="color:var(--text-primary)">$0.00</span>
+      </div>
+      <div class="net-row" style="margin-bottom:0">
+        <span class="net-label">Tax Reserve (35%)</span>
+        <span class="net-val" id="disp-tax" style="color:var(--accent-red)">− $0.00</span>
+      </div>
+      <div class="net-sep"></div>
+      <div class="net-total-row">
+        <span class="net-total-label">Net Profit</span>
+        <span class="net-total-val zero" id="disp-net">$0.00</span>
+      </div>
+    </div>
+
+    <div class="footer">
+      <button class="btn btn-ghost" onclick="clearForm()">Clear</button>
+      <button class="btn btn-primary">💾 Save Job</button>
+    </div>
+  </div>
+
+  <script>
+    function calc(val) {
+      const raw = parseFloat(val) || 0;
+      const tax = raw * 0.35;
+      const net = raw * 0.65;
+      document.getElementById('disp-base').textContent = '$' + raw.toFixed(2);
+      document.getElementById('disp-tax').textContent  = '− $' + tax.toFixed(2);
+      const netEl = document.getElementById('disp-net');
+      netEl.textContent = '$' + net.toFixed(2);
+      netEl.classList.toggle('zero', raw === 0);
+    }
+
+    function onSelectChange(sel) {
+      const val = sel.value;
+      document.getElementById('company-name').value = val;
+      document.getElementById('default-badge').style.display =
+        val === 'Canada Lumper Services' ? 'block' : 'none';
+    }
+
+    function clearForm() {
+      document.getElementById('pay').value = '';
+      document.getElementById('company-select').selectedIndex = 0;
+      document.getElementById('company-name').value = 'Canada Lumper Services';
+      document.getElementById('default-badge').style.display = 'block';
+      calc(0);
+    }
+  </script>
 </body>
 </html>
