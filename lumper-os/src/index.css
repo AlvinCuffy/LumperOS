@@ -1,0 +1,130 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Material Symbols ──────────────────────── */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+.fill-icon {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* ── Bar chart ─────────────────────────────── */
+.bar-top { border-radius: 4px 4px 0 0; }
+
+/* ── Animations ────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+.page-enter { animation: fadeIn 0.2s ease; }
+
+.stagger > * { animation: fadeIn 0.3s ease both; }
+.stagger > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger > *:nth-child(2) { animation-delay: 0.10s; }
+.stagger > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger > *:nth-child(4) { animation-delay: 0.20s; }
+.stagger > *:nth-child(5) { animation-delay: 0.25s; }
+
+/* ── Status dots ───────────────────────────── */
+.dot-active  { background: #FB923C; box-shadow: 0 0 6px #FB923C; animation: pulse-dot 2s infinite; }
+.dot-sent    { background: #60A5FA; box-shadow: 0 0 6px #60A5FA; }
+.dot-replied { background: #4ADE80; box-shadow: 0 0 6px #4ADE80; }
+.dot-sep     { background: #A78BFA; box-shadow: 0 0 6px #A78BFA; }
+.dot-none    { background: #475569; }
+
+/* ── Tags ──────────────────────────────────── */
+.tag {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid;
+}
+.tag-orange { background: rgba(251,146,60,0.1);  color: #FB923C; border-color: rgba(251,146,60,0.25); }
+.tag-teal   { background: rgba(45,212,191,0.1);  color: #2DD4BF; border-color: rgba(45,212,191,0.25); }
+.tag-blue   { background: rgba(96,165,250,0.1);  color: #60A5FA; border-color: rgba(96,165,250,0.25); }
+.tag-green  { background: rgba(74,222,128,0.1);  color: #4ADE80; border-color: rgba(74,222,128,0.25); }
+.tag-purple { background: rgba(167,139,250,0.1); color: #A78BFA; border-color: rgba(167,139,250,0.25); }
+.tag-yellow { background: rgba(250,204,21,0.1);  color: #FCD34D; border-color: rgba(250,204,21,0.25); }
+.tag-muted  { background: rgba(71,85,105,0.2);   color: #64748B; border-color: rgba(71,85,105,0.3); }
+
+/* ── Filter pills ──────────────────────────── */
+.filter-pill {
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: #161E2E;
+  color: #64748B;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.filter-pill.active {
+  background: rgba(251,146,60,0.15);
+  color: #FB923C;
+  border-color: rgba(251,146,60,0.3);
+}
+
+/* ── Additive toggle pills ─────────────────── */
+.add-pill { cursor: pointer; transition: all 0.15s; }
+.add-pill.on {
+  background: rgba(45,212,191,0.15) !important;
+  color: #2DD4BF !important;
+  border-color: rgba(45,212,191,0.3) !important;
+}
+
+/* ── Form inputs ───────────────────────────── */
+.form-input {
+  width: 100%;
+  background: #161E2E;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: #F1F5F9;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s;
+  font-family: 'DM Sans', sans-serif;
+}
+.form-input:focus { border-color: #FB923C; }
+.form-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #475569;
+  margin-bottom: 5px;
+  display: block;
+}
+
+/* ── Modal sheet ───────────────────────────── */
+.modal-sheet {
+  width: 100%;
+  background: #111827;
+  border-radius: 24px 24px 0 0;
+  padding: 28px 20px 40px;
+  animation: slideUp 0.25s ease;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* ── Scrollbar ─────────────────────────────── */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-thumb { background: #1A2436; border-radius: 2px; }
+
+/* ── No-scrollbar (filter row) ─────────────── */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
