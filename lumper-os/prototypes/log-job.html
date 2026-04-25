@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LumperOS – Log a Job</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #0f131e;
+  color: #dfe2f2;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  max-width: 390px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+/* ── Header ── */
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px 14px;
+  background: #0f131e; border-bottom: 1px solid #1b1f2b;
+  position: sticky; top: 0; z-index: 40;
+}
+.logo { font-size: 22px; font-weight: 800; color: #fb923c; letter-spacing: -0.5px; }
+.back-btn {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: #1b1f2b; border: 1px solid #262a36;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; cursor: pointer; color: #64748b;
+}
+
+/* ── Page title ── */
+.page-title-wrap { padding: 18px 20px 4px; }
+.page-title { font-size: 20px; font-weight: 800; color: #dfe2f2; }
+.page-sub   { font-size: 12px; color: #44e2cd; margin-top: 3px; font-weight: 600; }
+
+/* ── Main ── */
+.main { padding: 14px 16px 110px; }
+
+/* ── Form card ── */
+.form-card {
+  background: #1b1f2b; border: 1px solid #262a36; border-radius: 18px;
+  padding: 18px 16px; margin-bottom: 10px;
+}
+.form-card-title {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; color: #64748b; margin-bottom: 14px;
+}
+.field { margin-bottom: 12px; }
+.field:last-child { margin-bottom: 0; }
+.field-label {
+  font-size: 11px; font-weight: 700; color: #64748b;
+  text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;
+}
+.field-input {
+  width: 100%; padding: 11px 14px;
+  background: #262a36; border: 1px solid #313441; border-radius: 12px;
+  color: #dfe2f2; font-size: 14px; font-family: inherit;
+  outline: none;
+  appearance: none;
+}
+.field-input:focus { border-color: #fb923c; }
+.field-input::placeholder { color: #64748b; }
+select.field-input { background-image: none; }
+
+/* ── Two-col row ── */
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* ── Financials ── */
+.fin-row { display: flex; align-items: flex-end; gap: 10px; }
+.fin-row .field { flex: 1; margin-bottom: 0; }
+.fin-row .field.small { flex: 0 0 110px; }
+
+/* ── Modifiers checkboxes ── */
+.modifiers-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.mod-item {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  background: #262a36; border: 1px solid #313441; border-radius: 12px;
+  padding: 10px 6px; cursor: pointer; transition: all 0.15s;
+}
+.mod-item.active {
+  background: rgba(251,146,60,0.12); border-color: #fb923c;
+}
+.mod-item input { display: none; }
+.mod-check {
+  width: 20px; height: 20px; border-radius: 6px; border: 2px solid #313441;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; transition: all 0.15s;
+}
+.mod-item.active .mod-check {
+  background: #fb923c; border-color: #fb923c; color: #3a1800;
+}
+.mod-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: #64748b; text-align: center; line-height: 1.2; }
+.mod-item.active .mod-label { color: #fb923c; }
+
+/* ── Projected earnings ── */
+.proj-card {
+  background: linear-gradient(135deg, #1b1f2b, #171b27);
+  border: 1px solid rgba(68,226,205,0.25); border-radius: 18px;
+  padding: 18px 16px; margin-bottom: 10px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.proj-left {}
+.proj-eyebrow { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #64748b; margin-bottom: 4px; }
+.proj-amount  { font-size: 38px; font-weight: 800; color: #44e2cd; letter-spacing: -1px; line-height: 1; }
+.proj-sub     { font-size: 11px; color: #64748b; margin-top: 4px; }
+.proj-right { text-align: right; }
+.proj-formula { font-size: 12px; color: #64748b; margin-bottom: 4px; }
+.proj-rate { font-size: 20px; font-weight: 800; color: #fb923c; }
+
+/* ── Save button ── */
+.save-btn {
+  width: 100%; padding: 17px;
+  background: linear-gradient(135deg, #fb923c 0%, #ffb887 100%);
+  color: #3a1800; font-size: 16px; font-weight: 800;
+  border: none; border-radius: 16px; cursor: pointer;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  box-shadow: 0 4px 24px rgba(251,146,60,0.35);
+}
+
+/* ── Bottom nav ── */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 390px; background: rgba(23,27,39,0.95);
+  backdrop-filter: blur(16px); border-top: 1px solid #262a36;
+  display: flex; padding: 10px 0 22px; z-index: 100;
+}
+.nav-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; gap: 4px; cursor: pointer; padding: 2px 0;
+}
+.nav-icon  { font-size: 20px; line-height: 1; }
+.nav-label { font-size: 10px; font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase; }
+.nav-item.active .nav-icon,
+.nav-item.active .nav-label { color: #fb923c; }
+.nav-item:not(.active) .nav-icon,
+.nav-item:not(.active) .nav-label { color: #64748b; }
+.nav-pip { width: 4px; height: 4px; background: #fb923c; border-radius: 50%; margin-top: 1px; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="back-btn">←</div>
+  <div class="logo">LumperOS</div>
+  <div style="width:34px;"></div>
+</header>
+
+<!-- Page Title -->
+<div class="page-title-wrap">
+  <div class="page-title">Log a Job</div>
+  <div class="page-sub">Enter details for this shift</div>
+</div>
+
+<!-- Main -->
+<main class="main">
+
+  <!-- Job Details -->
+  <div class="form-card">
+    <div class="form-card-title">Job Details</div>
+
+    <div class="field-row" style="margin-bottom:12px;">
+      <div class="field">
+        <div class="field-label">Date of Service</div>
+        <input class="field-input" type="text" value="Apr 17, 2026" placeholder="Select date">
+      </div>
+      <div class="field">
+        <div class="field-label">Pieces</div>
+        <input class="field-input" type="text" value="340" placeholder="# of pieces">
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Company Name</div>
+      <input class="field-input" type="text" value="Pacific Rim Logistics" placeholder="Company name">
+    </div>
+
+    <div class="field">
+      <div class="field-label">Container ID</div>
+      <input class="field-input" type="text" value="PONU-881234-7" placeholder="Container ID">
+    </div>
+
+    <div class="field" style="margin-bottom:0;">
+      <div class="field-label">Job Site Address</div>
+      <input class="field-input" type="text" value="1400 Marine View Dr, Seattle" placeholder="Address">
+    </div>
+  </div>
+
+  <!-- Financials -->
+  <div class="form-card">
+    <div class="form-card-title">Financials</div>
+    <div class="fin-row">
+      <div class="field">
+        <div class="field-label">Base Pay ($)</div>
+        <input class="field-input" type="text" value="250.00" placeholder="0.00">
+      </div>
+      <div class="field small">
+        <div class="field-label">Multiplier</div>
+        <select class="field-input">
+          <option>1.0×</option>
+          <option selected>1.5×</option>
+          <option>2.0×</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modifiers -->
+  <div class="form-card">
+    <div class="form-card-title">Job Modifiers</div>
+    <div class="modifiers-grid">
+      <div class="mod-item active">
+        <div class="mod-check">✓</div>
+        <div class="mod-label">Heavy</div>
+      </div>
+      <div class="mod-item active">
+        <div class="mod-check">✓</div>
+        <div class="mod-label">Mixed</div>
+      </div>
+      <div class="mod-item">
+        <div class="mod-check"></div>
+        <div class="mod-label">Interlock</div>
+      </div>
+      <div class="mod-item">
+        <div class="mod-check"></div>
+        <div class="mod-label">High-Cube</div>
+      </div>
+      <div class="mod-item">
+        <div class="mod-check"></div>
+        <div class="mod-label">Tipped</div>
+      </div>
+      <div class="mod-item active">
+        <div class="mod-check">✓</div>
+        <div class="mod-label">Same Day</div>
+      </div>
+      <div class="mod-item">
+        <div class="mod-check"></div>
+        <div class="mod-label">Holiday Pay</div>
+      </div>
+      <div class="mod-item">
+        <div class="mod-check"></div>
+        <div class="mod-label">Night Shift</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Projected Earnings -->
+  <div class="proj-card">
+    <div class="proj-left">
+      <div class="proj-eyebrow">Projected Earnings</div>
+      <div class="proj-amount">$375.00</div>
+      <div class="proj-sub">After multipliers applied</div>
+    </div>
+    <div class="proj-right">
+      <div class="proj-formula">$250 × 1.5×</div>
+      <div class="proj-rate">= $375</div>
+    </div>
+  </div>
+
+  <!-- Save -->
+  <button class="save-btn">💾 Save Job</button>
+
+</main>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav">
+  <div class="nav-item">
+    <span class="nav-icon">🏠</span>
+    <span class="nav-label">Home</span>
+  </div>
+  <div class="nav-item active">
+    <span class="nav-icon">📋</span>
+    <span class="nav-label">Logs</span>
+    <div class="nav-pip"></div>
+  </div>
+  <div class="nav-item">
+    <span class="nav-icon">🚗</span>
+    <span class="nav-label">Mileage</span>
+  </div>
+  <div class="nav-item">
+    <span class="nav-icon">🏢</span>
+    <span class="nav-label">Pipeline</span>
+  </div>
+  <div class="nav-item">
+    <span class="nav-icon">💰</span>
+    <span class="nav-label">Tax</span>
+  </div>
+</nav>
+
+</body>
+</html>
