@@ -9,24 +9,47 @@ import Mileage from './src/pages/Mileage.jsx';
 import Pipeline from './src/pages/Pipeline.jsx';
 import Tax from './src/pages/Tax.jsx';
 
+const SEED_JOBS = [
+  { id: 1, date: '2026-04-01', company: 'TAS Refrigerated Distribution', containerId: 'ZCLU9930419', pieces: 318,  basePay: 140.00, multiplier: '',    address: '18 Abacus Rd, Brampton',       additives: ['Heavy','Interlock','Labels Out','Mixed'] },
+  { id: 2, date: '2026-04-06', company: 'TAS Refrigerated Distribution', containerId: 'KKFU6751964', pieces: null, basePay: 38.33,  multiplier: '',    address: '18 Abacus Rd, Brampton',       additives: ['Same Day'] },
+  { id: 3, date: '2026-04-06', company: 'TAS Refrigerated Distribution', containerId: 'FSCU5734460', pieces: 1800, basePay: 75.00,  multiplier: '',    address: '18 Abacus Rd, Brampton',       additives: ['Same Day','Interlock'] },
+  { id: 4, date: '2026-04-11', company: 'Fresh Taste Produce',           containerId: 'GINGER',      pieces: 1584, basePay: 187.53, multiplier: '1.5x',address: '11450 Steeles Ave, Brampton',  additives: ['Same Day'] },
+];
+
+function loadJobs() {
+  try {
+    const saved = localStorage.getItem('lumperos-jobs');
+    return saved ? JSON.parse(saved) : SEED_JOBS;
+  } catch {
+    return SEED_JOBS;
+  }
+}
+
 export default function App() {
   const [page, setPage] = useState('home');
   const [modalOpen, setModalOpen] = useState(false);
   const [profileKey, setProfileKey] = useState(null);
+  const [jobs, setJobs] = useState(loadJobs);
+
+  const addJob = (job) => {
+    const newJobs = [job, ...jobs];
+    setJobs(newJobs);
+    localStorage.setItem('lumperos-jobs', JSON.stringify(newJobs));
+  };
 
   const openModal = () => setModalOpen(true);
   const closeModal = () => setModalOpen(false);
 
   return (
-    <div className="bg-[#0B0F1A] text-slate-100 min-h-screen selection:bg-orange-500/20">
+    <div className="bg-[#0B0F1A] text-slate-100 min-h-dvh selection:bg-orange-500/20">
       <Header />
 
       <main className="pb-32 max-w-lg mx-auto">
-        {page === 'home'     && <Home onViewAll={() => setPage('logs')} onOpenModal={openModal} />}
-        {page === 'logs'     && <Logs onOpenModal={openModal} />}
+        {page === 'home'     && <Home jobs={jobs} onViewAll={() => setPage('logs')} onOpenModal={openModal} />}
+        {page === 'logs'     && <Logs jobs={jobs} onOpenModal={openModal} />}
         {page === 'mileage'  && <Mileage />}
         {page === 'pipeline' && <Pipeline onOpenProfile={setProfileKey} />}
-        {page === 'tax'      && <Tax />}
+        {page === 'tax'      && <Tax jobs={jobs} />}
       </main>
 
       <BottomNav page={page} setPage={setPage} />
@@ -40,7 +63,7 @@ export default function App() {
         <span className="material-symbols-outlined text-3xl">add</span>
       </button>
 
-      <LogJobModal open={modalOpen} onClose={closeModal} />
+      <LogJobModal open={modalOpen} onClose={closeModal} onSave={addJob} />
       {profileKey && <CompanyProfile profileKey={profileKey} onClose={() => setProfileKey(null)} />}
     </div>
   );

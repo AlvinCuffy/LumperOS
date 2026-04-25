@@ -2,12 +2,34 @@ import { useState } from 'react';
 
 const ADDITIVES = ['Heavy', 'Mixed', 'Interlock', 'High-Cube', 'Tipped', 'Same Day', 'Holiday', 'Labels Out'];
 
-export default function LogJobModal({ open, onClose }) {
-  const [active, setActive] = useState({});
+const EMPTY = { date: '', company: '', containerId: '', pieces: '', basePay: '', multiplier: '', address: '' };
+
+export default function LogJobModal({ open, onClose, onSave }) {
+  const [form, setForm] = useState(EMPTY);
+  const [activeAdditives, setActiveAdditives] = useState({});
 
   if (!open) return null;
 
-  const toggle = name => setActive(prev => ({ ...prev, [name]: !prev[name] }));
+  const set = (field) => (e) => setForm(prev => ({ ...prev, [field]: e.target.value }));
+  const toggleAdditive = (name) => setActiveAdditives(prev => ({ ...prev, [name]: !prev[name] }));
+
+  const handleSave = () => {
+    if (!form.company || !form.basePay) return;
+    onSave({
+      id: Date.now(),
+      date: form.date || new Date().toISOString().slice(0, 10),
+      company: form.company,
+      containerId: form.containerId,
+      pieces: form.pieces ? Number(form.pieces) : null,
+      basePay: parseFloat(form.basePay),
+      multiplier: form.multiplier,
+      address: form.address,
+      additives: Object.keys(activeAdditives).filter(k => activeAdditives[k]),
+    });
+    setForm(EMPTY);
+    setActiveAdditives({});
+    onClose();
+  };
 
   return (
     <div
@@ -24,36 +46,36 @@ export default function LogJobModal({ open, onClose }) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="form-label">Date</label>
-              <input type="date" className="form-input" defaultValue="2026-04-13" />
+              <input type="date" className="form-input" value={form.date} onChange={set('date')} />
             </div>
             <div>
               <label className="form-label">Company</label>
-              <input type="text" className="form-input" placeholder="e.g. TAS Refrigerated" />
+              <input type="text" className="form-input" placeholder="e.g. TAS Refrigerated" value={form.company} onChange={set('company')} />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="form-label">Container ID</label>
-              <input type="text" className="form-input" placeholder="e.g. ZCLU9930419" style={{ fontFamily: 'JetBrains Mono' }} />
+              <input type="text" className="form-input" placeholder="e.g. ZCLU9930419" value={form.containerId} onChange={set('containerId')} style={{ fontFamily: 'JetBrains Mono' }} />
             </div>
             <div>
               <label className="form-label">Pieces</label>
-              <input type="number" className="form-input" placeholder="e.g. 318" />
+              <input type="number" className="form-input" placeholder="e.g. 318" value={form.pieces} onChange={set('pieces')} />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="form-label">Base Pay ($)</label>
-              <input type="number" className="form-input" placeholder="55.00" />
+              <input type="number" className="form-input" placeholder="55.00" value={form.basePay} onChange={set('basePay')} />
             </div>
             <div>
               <label className="form-label">Multiplier</label>
-              <input type="text" className="form-input" placeholder="e.g. 1.5x" />
+              <input type="text" className="form-input" placeholder="e.g. 1.5x" value={form.multiplier} onChange={set('multiplier')} />
             </div>
           </div>
           <div>
             <label className="form-label">Job Site Address (for km calc)</label>
-            <input type="text" className="form-input" placeholder="e.g. 11450 Steeles Ave, Brampton" />
+            <input type="text" className="form-input" placeholder="e.g. 11450 Steeles Ave, Brampton" value={form.address} onChange={set('address')} />
           </div>
           <div>
             <label className="form-label">Additives</label>
@@ -61,8 +83,8 @@ export default function LogJobModal({ open, onClose }) {
               {ADDITIVES.map(name => (
                 <span
                   key={name}
-                  onClick={() => toggle(name)}
-                  className={`add-pill tag tag-muted ${active[name] ? 'on' : ''}`}
+                  onClick={() => toggleAdditive(name)}
+                  className={`add-pill tag tag-muted ${activeAdditives[name] ? 'on' : ''}`}
                 >
                   {name}
                 </span>
@@ -79,8 +101,9 @@ export default function LogJobModal({ open, onClose }) {
             Cancel
           </button>
           <button
-            onClick={onClose}
-            className="py-3 rounded-xl text-black font-bold text-sm"
+            onClick={handleSave}
+            disabled={!form.company || !form.basePay}
+            className="py-3 rounded-xl text-black font-bold text-sm disabled:opacity-40"
             style={{ background: 'linear-gradient(135deg,#FB923C,#F97316)', boxShadow: '0 0 20px rgba(251,146,60,0.3)' }}
           >
             💾 Save Job

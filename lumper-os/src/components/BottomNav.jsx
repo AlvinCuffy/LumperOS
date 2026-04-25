@@ -10,7 +10,7 @@ export default function BottomNav({ page, setPage }) {
   return (
     <nav
       className="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 border-t border-white/5"
-      style={{ background: 'rgba(11,15,26,0.85)', backdropFilter: 'blur(20px)' }}
+      style={{ background: 'rgba(11,15,26,0.85)', backdropFilter: 'blur(20px)', paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}
     >
       {NAV_ITEMS.map(item => {
         const active = page === item.id;

@@ -1,8 +1,7 @@
-const DEDUCTIONS = [
-  { icon: '🏦', label: 'Tax Set-Aside (35%)',    val: '$154.30', color: 'text-orange-400', barColor: 'bg-orange-400', pct: 35 },
-  { icon: '🚗', label: 'Vehicle Deduction (30%)', val: '$18.20',  color: 'text-teal-400',   barColor: 'bg-teal-400',   pct: 30 },
-  { icon: '🥾', label: 'Safety Gear / PPE',       val: '$35.00',  color: 'text-blue-400',   barColor: 'bg-blue-400',   pct: 8 },
-  { icon: '⛽', label: 'Gas (Business %)',         val: '$12.40',  color: 'text-emerald-400',barColor: 'bg-emerald-400',pct: 12 },
+const STATIC_DEDUCTIONS = [
+  { icon: '🚗', label: 'Vehicle Deduction (30%)', color: 'text-teal-400',   barColor: 'bg-teal-400',   pct: 30, fixed: null },
+  { icon: '🥾', label: 'Safety Gear / PPE',       color: 'text-blue-400',   barColor: 'bg-blue-400',   pct: 8,  fixed: 35.00 },
+  { icon: '⛽', label: 'Gas (Business %)',         color: 'text-emerald-400',barColor: 'bg-emerald-400',pct: 12, fixed: 12.40 },
 ];
 
 const NOA_YEARS = [
@@ -11,7 +10,18 @@ const NOA_YEARS = [
   { year: '2026', color: 'text-emerald-400', barColor: 'bg-emerald-400',  width: '35%',  label: 'Active ▶' },
 ];
 
-export default function Tax() {
+function fmt(n) { return Number(n).toFixed(2); }
+
+export default function Tax({ jobs = [] }) {
+  const gross    = jobs.reduce((s, j) => s + j.basePay, 0);
+  const taxSet   = gross * 0.35;
+  const takeHome = gross * 0.65;
+
+  const deductions = [
+    { icon: '🏦', label: 'Tax Set-Aside (35%)', val: `$${fmt(taxSet)}`,    color: 'text-orange-400', barColor: 'bg-orange-400', pct: 35 },
+    ...STATIC_DEDUCTIONS.map(d => ({ ...d, val: `$${fmt(d.fixed ?? gross * 0.04)}` })),
+  ];
+
   return (
     <div className="px-5 pt-6 space-y-4 stagger page-enter">
 
@@ -26,14 +36,14 @@ export default function Tax() {
           Net Take-Home (After 35% Set-Aside)
         </div>
         <div className="font-headline text-5xl font-black text-emerald-400 tracking-tight">
-          $286<span className="text-2xl text-emerald-400/50">.56</span>
+          ${Math.floor(takeHome)}<span className="text-2xl text-emerald-400/50">.{fmt(takeHome).split('.')[1]}</span>
         </div>
-        <div className="text-xs text-slate-500 mt-2">From $440.86 gross this week</div>
+        <div className="text-xs text-slate-500 mt-2">From ${fmt(gross)} gross · {jobs.length} job{jobs.length !== 1 ? 's' : ''}</div>
       </div>
 
       {/* Breakdown cards */}
       <div className="space-y-3">
-        {DEDUCTIONS.map(d => (
+        {deductions.map(d => (
           <div key={d.label} className="rounded-2xl p-4 border border-white/5" style={{ background: '#161E2E' }}>
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-3">
