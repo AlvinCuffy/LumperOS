@@ -1,4 +1,6 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import JobDetailModal from '../components/JobDetailModal.jsx';
+import { saveStub } from '../utils/stubStore.js';
 
 function fmt(n) { return Number(n).toFixed(2); }
 
@@ -20,11 +22,14 @@ function toBase64(file) {
 }
 
 function PayStubModal({ open, onClose, result, jobs, onConfirm }) {
-  const [selected, setSelected] = useState(() => {
+  const [selected, setSelected] = useState({});
+
+  useEffect(() => {
+    if (!result?.matched) return;
     const map = {};
-    result?.matched?.forEach(id => { map[id] = true; });
-    return map;
-  });
+    result.matched.forEach(id => { map[id] = true; });
+    setSelected(map);
+  }, [result]);
 
   if (!open || !result) return null;
 
@@ -102,11 +107,12 @@ function PayStubModal({ open, onClose, result, jobs, onConfirm }) {
   );
 }
 
-export default function Logs({ jobs = [], onOpenModal, onMarkPaid }) {
+export default function Logs({ jobs = [], onOpenModal, onMarkPaid, onDeleteJob }) {
   const totalPay     = jobs.reduce((s, j) => s + j.basePay, 0);
   const totalPieces  = jobs.reduce((s, j) => s + (j.pieces || 0), 0);
   const pendingCount = jobs.filter(j => j.status !== 'paid').length;
 
+  const [selectedJob, setSelectedJob] = useState(null);
   const [parsing, setParsing] = useState(false);
   const [parseError, setParseError] = useState('');
   const [stubResult, setStubResult] = useState(null);
@@ -127,6 +133,9 @@ export default function Logs({ jobs = [], onOpenModal, onMarkPaid }) {
       });
       if (!res.ok) throw new Error(`Server error ${res.status}`);
       const data = await res.json();
+
+      // Auto-save to Pay Stub Vault
+      saveStub(file).catch(() => {});
 
       // Match parsed jobs to pending jobs by containerId or company name
       const pending = jobs.filter(j => j.status !== 'paid');
@@ -228,7 +237,8 @@ export default function Logs({ jobs = [], onOpenModal, onMarkPaid }) {
             return (
               <div
                 key={job.id}
-                className={`rounded-2xl p-4 border ${highlight ? 'border-orange-400/20' : isPending ? 'border-yellow-400/15' : 'border-white/5'}`}
+                onClick={() => setSelectedJob(job)}
+                className={`rounded-2xl p-4 border cursor-pointer active:scale-[0.98] transition-transform ${highlight ? 'border-orange-400/20' : isPending ? 'border-yellow-400/15' : 'border-white/5'}`}
                 style={{ background: highlight ? 'rgba(251,146,60,0.05)' : isPending ? 'rgba(250,204,21,0.03)' : '#161E2E' }}
               >
                 <div className="flex justify-between items-start mb-3">
@@ -239,7 +249,12 @@ export default function Logs({ jobs = [], onOpenModal, onMarkPaid }) {
                     </div>
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <div className="font-mono font-bold text-emerald-400">${fmt(job.basePay)}</div>
+                    <div className="font-mono font-bold text-emerald-400">
+                      ${fmt(job.basePay)}
+                      {isPending && job.additives?.length > 0 && (
+                        <span className="text-emerald-400/40 text-[10px] font-normal"> + extras</span>
+                      )}
+                    </div>
                     <div className={`text-[9px] ${highlight ? 'text-orange-400 font-semibold' : 'text-slate-600'}`}>
                       {highlight ? `${job.multiplier} · ` : ''}
                       {new Date(job.date + 'T00:00:00').toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' })}
@@ -261,6 +276,12 @@ export default function Logs({ jobs = [], onOpenModal, onMarkPaid }) {
           })}
         </div>
       )}
+
+      <JobDetailModal
+        job={selectedJob}
+        onClose={() => setSelectedJob(null)}
+        onDelete={onDeleteJob}
+      />
 
       <PayStubModal
         open={stubOpen}

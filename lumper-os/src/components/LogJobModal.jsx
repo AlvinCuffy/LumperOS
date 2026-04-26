@@ -37,8 +37,8 @@ export default function LogJobModal({ open, onClose, onSave }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ imageBase64, mediaType: file.type }),
       });
-      if (!res.ok) throw new Error(`Server error ${res.status}`);
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
 
       setForm(prev => ({
         date:        data.date        || prev.date,
@@ -56,7 +56,7 @@ export default function LogJobModal({ open, onClose, onSave }) {
         setActiveAdditives(next);
       }
     } catch (err) {
-      setScanError('Could not read job — please fill in manually.');
+      setScanError(err.message || 'Scan failed — please fill in manually.');
       console.error(err);
     } finally {
       setScanning(false);
