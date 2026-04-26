@@ -48,8 +48,12 @@ export default async function handler(req, res) {
 - "Time" field = the job date. Extract YYYY-MM-DD from it (e.g. "2026-04-15, 8:00 PM" → "2026-04-15")
 - "Container" field = the container ID (e.g. MNBU9111781)
 - "Pay" field shows as "CODE\\n$AMOUNT" — basePay is the dollar amount only (e.g. "$55.00" → 55.00)
-- Pieces are written in a notes/description box as a number followed by condition words (e.g. "1160 interlocked" → pieces: 1160, additive: "Interlock")
-- Common piece conditions that map to additives — interlocked→Interlock, mixed→Mixed, heavy→Heavy, high cube→High-Cube, tipped→Tipped, labels out→Labels Out
+- Pieces are in a notes/description box. The format is: TOTAL_PIECES (optional sub-count) CONDITION WORDS. Examples:
+  "1160 interlocked" → pieces: 1160, additives: ["Interlock"]
+  "1800 (10) INTERLOCK LABELS" → pieces: 1800, additives: ["Interlock", "Labels Out"]
+  "320 MIXED HEAVY" → pieces: 320, additives: ["Mixed", "Heavy"]
+  The first standalone number is always the total piece count. Numbers in parentheses like (10) are sub-counts — ignore them for pieces.
+- Condition words map to additives: INTERLOCK→Interlock, MIXED→Mixed, HEAVY→Heavy, HIGH CUBE/HIGH-CUBE→High-Cube, TIPPED→Tipped, LABELS/LABELS OUT→Labels Out
 - "Address" field = job site address
 - Ignore "Lumper", "Supervisor", "Completed" fields
 
