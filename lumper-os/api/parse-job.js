@@ -43,8 +43,18 @@ export default async function handler(req, res) {
           },
           {
             type: 'text',
-            text: `Parse this lumper job dispatch screenshot. Return ONLY a raw JSON object (no markdown, no backticks, no explanation):
-{"company":"string or null","containerId":"container ID string or null","pieces":number or null,"basePay":number in dollars or null,"multiplier":"e.g. 1.5x or null","address":"string or null","additives":["only from: ${ADDITIVES.join(', ')}"]}`,
+            text: `This is a screenshot from the CLS (Canada Lumping Service) lumper dispatch app. Extract job details using these CLS-specific rules:
+
+- "Time" field = the job date. Extract YYYY-MM-DD from it (e.g. "2026-04-15, 8:00 PM" → "2026-04-15")
+- "Container" field = the container ID (e.g. MNBU9111781)
+- "Pay" field shows as "CODE\\n$AMOUNT" — basePay is the dollar amount only (e.g. "$55.00" → 55.00)
+- Pieces are written in a notes/description box as a number followed by condition words (e.g. "1160 interlocked" → pieces: 1160, additive: "Interlock")
+- Common piece conditions that map to additives — interlocked→Interlock, mixed→Mixed, heavy→Heavy, high cube→High-Cube, tipped→Tipped, labels out→Labels Out
+- "Address" field = job site address
+- Ignore "Lumper", "Supervisor", "Completed" fields
+
+Return ONLY a raw JSON object (no markdown, no backticks):
+{"company":"string or null","containerId":"string or null","date":"YYYY-MM-DD or null","pieces":number or null,"basePay":number or null,"multiplier":"e.g. 1.5x or null","address":"string or null","additives":["only from: ${ADDITIVES.join(', ')}"]}`,
           },
         ],
       }],
