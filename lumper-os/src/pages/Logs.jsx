@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 function fmt(n) { return Number(n).toFixed(2); }
 
@@ -20,11 +20,14 @@ function toBase64(file) {
 }
 
 function PayStubModal({ open, onClose, result, jobs, onConfirm }) {
-  const [selected, setSelected] = useState(() => {
+  const [selected, setSelected] = useState({});
+
+  useEffect(() => {
+    if (!result?.matched) return;
     const map = {};
-    result?.matched?.forEach(id => { map[id] = true; });
-    return map;
-  });
+    result.matched.forEach(id => { map[id] = true; });
+    setSelected(map);
+  }, [result]);
 
   if (!open || !result) return null;
 

@@ -4,10 +4,6 @@
   "framework": "vite",
   "cleanUrls": true,
   "trailingSlash": false,
-  "functions": {
-    "api/parse-job.js":     { "runtime": "nodejs20.x" },
-    "api/parse-paystub.js": { "runtime": "nodejs20.x" }
-  },
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/:path*" },
     { "source": "/(.*)",       "destination": "/index.html"  }
