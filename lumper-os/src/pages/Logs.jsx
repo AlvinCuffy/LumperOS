@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import JobDetailModal from '../components/JobDetailModal.jsx';
+import { saveStub } from '../utils/stubStore.js';
 
 function fmt(n) { return Number(n).toFixed(2); }
 
@@ -132,6 +133,9 @@ export default function Logs({ jobs = [], onOpenModal, onMarkPaid, onDeleteJob }
       });
       if (!res.ok) throw new Error(`Server error ${res.status}`);
       const data = await res.json();
+
+      // Auto-save to Pay Stub Vault
+      saveStub(file).catch(() => {});
 
       // Match parsed jobs to pending jobs by containerId or company name
       const pending = jobs.filter(j => j.status !== 'paid');
