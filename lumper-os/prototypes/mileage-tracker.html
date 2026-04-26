@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LumperOS – Mileage Tracker</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #0f131e;
+  color: #dfe2f2;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  max-width: 390px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+/* ── Header ── */
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px 14px;
+  background: #0f131e; border-bottom: 1px solid #1b1f2b;
+  position: sticky; top: 0; z-index: 40;
+}
+.logo { font-size: 22px; font-weight: 800; color: #fb923c; letter-spacing: -0.5px; }
+.header-icon {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: #1b1f2b; border: 1px solid #262a36;
+  display: flex; align-items: center; justify-content: center; font-size: 15px;
+}
+
+/* ── Page title ── */
+.page-title-wrap { padding: 18px 20px 4px; }
+.page-title { font-size: 20px; font-weight: 800; color: #dfe2f2; letter-spacing: -0.3px; }
+.page-sub   { font-size: 12px; color: #64748b; margin-top: 2px; }
+
+/* ── Main ── */
+.main { padding: 14px 16px 110px; }
+
+/* ── Donut card ── */
+.donut-card {
+  background: #1b1f2b; border: 1px solid #262a36; border-radius: 22px;
+  padding: 24px 20px; margin-bottom: 12px;
+  display: flex; align-items: center; gap: 20px;
+}
+.donut-wrap { position: relative; flex-shrink: 0; width: 120px; height: 120px; }
+.donut-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.donut-center {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  text-align: center; pointer-events: none;
+}
+.donut-pct { font-size: 22px; font-weight: 800; color: #dfe2f2; line-height: 1; }
+.donut-lbl { font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; }
+.donut-stats { flex: 1; }
+.stat-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.stat-row:last-child { border-bottom: none; }
+.stat-left { display: flex; align-items: center; gap: 8px; }
+.stat-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.stat-name { font-size: 12px; color: #a0aec0; }
+.stat-val  { font-size: 14px; font-weight: 700; color: #dfe2f2; }
+
+/* ── KPI row ── */
+.kpi-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.kpi-card {
+  background: #1b1f2b; border: 1px solid #262a36; border-radius: 18px;
+  padding: 16px 14px;
+}
+.kpi-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #64748b; margin-bottom: 6px; }
+.kpi-value { font-size: 28px; font-weight: 800; line-height: 1; }
+.kpi-sub   { font-size: 11px; color: #64748b; margin-top: 4px; }
+
+/* ── Log button ── */
+.log-btn {
+  width: 100%; padding: 16px;
+  background: linear-gradient(135deg, #fb923c 0%, #ffb887 100%);
+  color: #3a1800; font-size: 15px; font-weight: 800;
+  border: none; border-radius: 16px; cursor: pointer;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 20px rgba(251,146,60,0.3);
+}
+
+/* ── Section head ── */
+.section-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.section-title { font-size: 13px; font-weight: 700; color: #dfe2f2; text-transform: uppercase; letter-spacing: 0.3px; }
+.section-link  { font-size: 12px; color: #44e2cd; font-weight: 600; }
+
+/* ── Trip items ── */
+.trip-item {
+  background: #1b1f2b; border: 1px solid #262a36; border-radius: 16px;
+  padding: 14px 16px; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 12px;
+}
+.trip-icon {
+  width: 40px; height: 40px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
+}
+.trip-icon.teal   { background: rgba(68,226,205,0.12); }
+.trip-icon.orange { background: rgba(251,146,60,0.12); }
+.trip-body { flex: 1; min-width: 0; }
+.trip-route {
+  font-size: 13px; font-weight: 700; color: #dfe2f2; margin-bottom: 4px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.trip-meta { font-size: 11px; color: #64748b; display: flex; align-items: center; gap: 8px; }
+.tag {
+  display: inline-block; border-radius: 20px;
+  padding: 2px 8px; font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.tag-teal   { background: rgba(68,226,205,0.12); color: #44e2cd; }
+.tag-orange { background: rgba(251,146,60,0.12); color: #fb923c; }
+.trip-right { text-align: right; flex-shrink: 0; }
+.trip-km    { font-size: 16px; font-weight: 800; color: #dfe2f2; }
+.trip-est   { font-size: 11px; color: #64748b; margin-top: 2px; }
+
+/* ── Bottom nav ── */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 390px; background: rgba(23,27,39,0.95);
+  backdrop-filter: blur(16px); border-top: 1px solid #262a36;
+  display: flex; padding: 10px 0 22px; z-index: 100;
+}
+.nav-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; gap: 4px; cursor: pointer; padding: 2px 0;
+}
+.nav-icon  { font-size: 20px; line-height: 1; }
+.nav-label { font-size: 10px; font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase; }
+.nav-item.active .nav-icon,
+.nav-item.active .nav-label { color: #fb923c; }
+.nav-item:not(.active) .nav-icon,
+.nav-item:not(.active) .nav-label { color: #64748b; }
+.nav-pip { width: 4px; height: 4px; background: #fb923c; border-radius: 50%; margin-top: 1px; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="logo">LumperOS</div>
+  <div class="header-icon">⚙️</div>
+</header>
+
+<!-- Page Title -->
+<div class="page-title-wrap">
+  <div class="page-title">Mileage Tracker</div>
+  <div class="page-sub">April 2026 · Current Period</div>
+</div>
+
+<!-- Main -->
+<main class="main">
+
+  <!-- Donut ring + stats -->
+  <div class="donut-card">
+    <div class="donut-wrap">
+      <svg viewBox="0 0 100 100">
+        <!-- track -->
+        <circle cx="50" cy="50" r="40" fill="transparent" stroke="#262a36" stroke-width="12"/>
+        <!-- teal business 75% = 251.2 * 0.75 = 188.4 -->
+        <circle cx="50" cy="50" r="40" fill="transparent"
+          stroke="#44e2cd" stroke-width="12"
+          stroke-dasharray="251.2" stroke-dashoffset="62.8"/>
+        <!-- orange personal 25% — starts after teal, dashoffset = total - 25% = 188.4 -->
+        <circle cx="50" cy="50" r="40" fill="transparent"
+          stroke="#fb923c" stroke-width="12"
+          stroke-dasharray="251.2" stroke-dashoffset="188.4"/>
+      </svg>
+      <div class="donut-center">
+        <div class="donut-pct">75%</div>
+        <div class="donut-lbl">Business</div>
+      </div>
+    </div>
+    <div class="donut-stats">
+      <div class="stat-row">
+        <div class="stat-left">
+          <div class="stat-dot" style="background:#44e2cd;"></div>
+          <span class="stat-name">Business</span>
+        </div>
+        <span class="stat-val">1,240 km</span>
+      </div>
+      <div class="stat-row">
+        <div class="stat-left">
+          <div class="stat-dot" style="background:#fb923c;"></div>
+          <span class="stat-name">Personal</span>
+        </div>
+        <span class="stat-val">410 km</span>
+      </div>
+      <div class="stat-row" style="padding-top:10px; margin-top:4px; border-top: 1px solid rgba(255,255,255,0.08); border-bottom:none;">
+        <div class="stat-left">
+          <span class="stat-name" style="color:#dfe2f2; font-weight:700;">Total</span>
+        </div>
+        <span class="stat-val" style="color:#44e2cd;">1,650 km</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI cards -->
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-label">Deductible</div>
+      <div class="kpi-value" style="color:#44e2cd;">$843.20</div>
+      <div class="kpi-sub">+12% vs last year</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Work Efficiency</div>
+      <div class="kpi-value" style="color:#fb923c;">92%</div>
+      <div class="kpi-sub">Optimized</div>
+    </div>
+  </div>
+
+  <!-- Log button -->
+  <button class="log-btn">+ Log New Trip</button>
+
+  <!-- Trip history -->
+  <div class="section-head">
+    <span class="section-title">Recent Trips</span>
+    <span class="section-link">View All →</span>
+  </div>
+
+  <div class="trip-item">
+    <div class="trip-icon teal">🚢</div>
+    <div class="trip-body">
+      <div class="trip-route">Port of Seattle → Logistics Hub B</div>
+      <div class="trip-meta">
+        <span>Today · 08:30 AM</span>
+        <span class="tag tag-teal">Business</span>
+      </div>
+    </div>
+    <div class="trip-right">
+      <div class="trip-km">142.5 km</div>
+      <div class="trip-est">Est. $78.20</div>
+    </div>
+  </div>
+
+  <div class="trip-item">
+    <div class="trip-icon orange">🏠</div>
+    <div class="trip-body">
+      <div class="trip-route">Main Office → Residential Area</div>
+      <div class="trip-meta">
+        <span>Yesterday · 06:15 PM</span>
+        <span class="tag tag-orange">Personal</span>
+      </div>
+    </div>
+    <div class="trip-right">
+      <div class="trip-km">18.2 km</div>
+      <div class="trip-est">No Deduction</div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav">
+  <div class="nav-item">
+    <span class="nav-icon">🏠</span>
+    <span class="nav-label">Home</span>
+  </div>
+  <div class="nav-item">
+    <span class="nav-icon">📋</span>
+    <span class="nav-label">Logs</span>
+  </div>
+  <div class="nav-item active">
+    <span class="nav-icon">🚗</span>
+    <span class="nav-label">Mileage</span>
+    <div class="nav-pip"></div>
+  </div>
+  <div class="nav-item">
+    <span class="nav-icon">🏢</span>
+    <span class="nav-label">Pipeline</span>
+  </div>
+  <div class="nav-item">
+    <span class="nav-icon">💰</span>
+    <span class="nav-label">Tax</span>
+  </div>
+</nav>
+
+</body>
+</html>
