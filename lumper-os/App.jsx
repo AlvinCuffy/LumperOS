@@ -10,16 +10,47 @@ import Pipeline from './src/pages/Pipeline.jsx';
 import Tax from './src/pages/Tax.jsx';
 
 const SEED_JOBS = [
-  { id: 1, date: '2026-04-01', company: 'TAS Refrigerated Distribution', containerId: 'ZCLU9930419', pieces: 318,  basePay: 140.00, multiplier: '',    address: '18 Abacus Rd, Brampton',       additives: ['Heavy','Interlock','Labels Out','Mixed'], status: 'paid' },
-  { id: 2, date: '2026-04-06', company: 'TAS Refrigerated Distribution', containerId: 'KKFU6751964', pieces: null, basePay: 38.33,  multiplier: '',    address: '18 Abacus Rd, Brampton',       additives: ['Same Day'],                               status: 'paid' },
-  { id: 3, date: '2026-04-06', company: 'TAS Refrigerated Distribution', containerId: 'FSCU5734460', pieces: 1800, basePay: 75.00,  multiplier: '',    address: '18 Abacus Rd, Brampton',       additives: ['Same Day','Interlock'],                   status: 'paid' },
-  { id: 4, date: '2026-04-11', company: 'Fresh Taste Produce',           containerId: 'GINGER',      pieces: 1584, basePay: 187.53, multiplier: '1.5x',address: '11450 Steeles Ave, Brampton',  additives: ['Same Day'],                               status: 'paid' },
+  { id: 1,  date: '2026-04-01', company: 'TAS Refrigerated Distribution', containerId: 'ZCLU9930419', pieces: 318,  basePay: 140.00, multiplier: '',    address: '18 Abacus Road, Brampton', additives: ['Heavy','Interlock','Labels Out','Mixed'], status: 'paid' },
+  { id: 2,  date: '2026-04-06', company: 'TAS Refrigerated Distribution', containerId: 'KKFU6751964', pieces: null, basePay: 38.33,  multiplier: '',    address: '18 Abacus Road, Brampton', additives: ['Same Day'],                               status: 'paid' },
+  { id: 3,  date: '2026-04-06', company: 'TAS Refrigerated Distribution', containerId: 'FSCU5734460', pieces: 1800, basePay: 75.00,  multiplier: '',    address: '18 Abacus Road, Brampton', additives: ['Same Day','Interlock'],                   status: 'paid' },
+  { id: 4,  date: '2026-04-11', company: 'Fresh Taste Produce',           containerId: 'GINGER',      pieces: 1584, basePay: 187.53, multiplier: '1.5x',address: '11450 Steeles Ave, Brampton', additives: ['Same Day'],                             status: 'paid' },
+  { id: 5,  date: '2026-04-14', company: 'TAS Refrigerated Distribution', containerId: 'OERU4009514', pieces: 1800, basePay: 60.00,  multiplier: '',    address: '18 Abacus Road, Brampton', additives: ['Interlock'],                              status: 'pending' },
+  { id: 6,  date: '2026-04-15', company: 'TAS Refrigerated Distribution', containerId: 'MNBU4147375', pieces: 1160, basePay: 55.00,  multiplier: '',    address: '18 Abacus Road, Brampton', additives: ['Interlock'],                              status: 'paid' },
+  { id: 7,  date: '2026-04-15', company: 'TAS Refrigerated Distribution', containerId: 'MNBU9111781', pieces: 1160, basePay: 55.00,  multiplier: '',    address: '18 Abacus Road, Brampton', additives: ['Interlock'],                              status: 'paid' },
+  { id: 8,  date: '2026-04-16', company: 'TAS Refrigerated Distribution', containerId: 'MNBU3640031', pieces: 1160, basePay: 55.00,  multiplier: '',    address: '18 Abacus Road, Brampton', additives: ['Interlock'],                              status: 'pending' },
+  { id: 9,  date: '2026-04-16', company: 'TAS Refrigerated Distribution', containerId: 'MNBU4676105', pieces: 1160, basePay: 55.00,  multiplier: '',    address: '18 Abacus Road, Brampton', additives: ['Interlock'],                              status: 'pending' },
+  { id: 10, date: '2026-04-20', company: 'TAS Refrigerated Distribution', containerId: 'SEGU9688486',   pieces: 1800, basePay: 60.00,  multiplier: '',    address: '18 Abacus Road, Brampton', additives: ['Interlock','Labels Out'],                 status: 'pending' },
+  { id: 11, date: '2026-04-23', company: 'TAS Refrigerated Distribution', containerId: 'Repile',       pieces: 1820, basePay: 60.00,  multiplier: '',    address: '18 Abacus Road, Brampton', additives: [],                                         status: 'pending' },
 ];
+
+const SEED_VERSION = 6;
 
 function loadJobs() {
   try {
-    const saved = localStorage.getItem('lumperos-jobs');
-    return saved ? JSON.parse(saved) : SEED_JOBS;
+    const version = Number(localStorage.getItem('lumperos-seed-v') ?? 0);
+    const saved   = localStorage.getItem('lumperos-jobs');
+
+    if (!saved) {
+      localStorage.setItem('lumperos-seed-v', SEED_VERSION);
+      localStorage.setItem('lumperos-jobs', JSON.stringify(SEED_JOBS));
+      return SEED_JOBS;
+    }
+
+    if (version < SEED_VERSION) {
+      // Merge: prepend any seed jobs whose containerId isn't already stored
+      const existing    = JSON.parse(saved);
+      const existingIds = new Set(existing.map(j => j.containerId));
+      const toAdd       = SEED_JOBS.filter(j => !existingIds.has(j.containerId));
+      // Update status of existing jobs that have changed in seed
+      const statusUpdates = Object.fromEntries(SEED_JOBS.map(j => [j.containerId, j.status]));
+      const updated = existing.map(j => statusUpdates[j.containerId] ? { ...j, status: statusUpdates[j.containerId] } : j);
+      const merged  = [...toAdd, ...updated];
+      localStorage.setItem('lumperos-seed-v', SEED_VERSION);
+      localStorage.setItem('lumperos-jobs', JSON.stringify(merged));
+      return merged;
+    }
+
+    return JSON.parse(saved);
   } catch {
     return SEED_JOBS;
   }
@@ -35,6 +66,12 @@ export default function App() {
     const newJobs = [{ ...job, status: 'pending' }, ...jobs];
     setJobs(newJobs);
     localStorage.setItem('lumperos-jobs', JSON.stringify(newJobs));
+  };
+
+  const deleteJob = (id) => {
+    const updated = jobs.filter(j => j.id !== id);
+    setJobs(updated);
+    localStorage.setItem('lumperos-jobs', JSON.stringify(updated));
   };
 
   const markJobsPaid = (ids) => {
@@ -53,7 +90,7 @@ export default function App() {
 
       <main className="pb-32 max-w-lg mx-auto">
         {page === 'home'     && <Home jobs={jobs} onViewAll={() => setPage('logs')} onOpenModal={openModal} />}
-        {page === 'logs'     && <Logs jobs={jobs} onOpenModal={openModal} onMarkPaid={markJobsPaid} />}
+        {page === 'logs'     && <Logs jobs={jobs} onOpenModal={openModal} onMarkPaid={markJobsPaid} onDeleteJob={deleteJob} />}
         {page === 'mileage'  && <Mileage />}
         {page === 'pipeline' && <Pipeline onOpenProfile={setProfileKey} />}
         {page === 'tax'      && <Tax jobs={jobs} />}
