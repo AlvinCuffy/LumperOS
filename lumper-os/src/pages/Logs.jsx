@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import JobDetailModal from '../components/JobDetailModal.jsx';
 
 function fmt(n) { return Number(n).toFixed(2); }
 
@@ -105,11 +106,12 @@ function PayStubModal({ open, onClose, result, jobs, onConfirm }) {
   );
 }
 
-export default function Logs({ jobs = [], onOpenModal, onMarkPaid }) {
+export default function Logs({ jobs = [], onOpenModal, onMarkPaid, onDeleteJob }) {
   const totalPay     = jobs.reduce((s, j) => s + j.basePay, 0);
   const totalPieces  = jobs.reduce((s, j) => s + (j.pieces || 0), 0);
   const pendingCount = jobs.filter(j => j.status !== 'paid').length;
 
+  const [selectedJob, setSelectedJob] = useState(null);
   const [parsing, setParsing] = useState(false);
   const [parseError, setParseError] = useState('');
   const [stubResult, setStubResult] = useState(null);
@@ -231,7 +233,8 @@ export default function Logs({ jobs = [], onOpenModal, onMarkPaid }) {
             return (
               <div
                 key={job.id}
-                className={`rounded-2xl p-4 border ${highlight ? 'border-orange-400/20' : isPending ? 'border-yellow-400/15' : 'border-white/5'}`}
+                onClick={() => setSelectedJob(job)}
+                className={`rounded-2xl p-4 border cursor-pointer active:scale-[0.98] transition-transform ${highlight ? 'border-orange-400/20' : isPending ? 'border-yellow-400/15' : 'border-white/5'}`}
                 style={{ background: highlight ? 'rgba(251,146,60,0.05)' : isPending ? 'rgba(250,204,21,0.03)' : '#161E2E' }}
               >
                 <div className="flex justify-between items-start mb-3">
@@ -264,6 +267,12 @@ export default function Logs({ jobs = [], onOpenModal, onMarkPaid }) {
           })}
         </div>
       )}
+
+      <JobDetailModal
+        job={selectedJob}
+        onClose={() => setSelectedJob(null)}
+        onDelete={onDeleteJob}
+      />
 
       <PayStubModal
         open={stubOpen}

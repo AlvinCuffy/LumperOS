@@ -63,6 +63,12 @@ export default function App() {
     localStorage.setItem('lumperos-jobs', JSON.stringify(newJobs));
   };
 
+  const deleteJob = (id) => {
+    const updated = jobs.filter(j => j.id !== id);
+    setJobs(updated);
+    localStorage.setItem('lumperos-jobs', JSON.stringify(updated));
+  };
+
   const markJobsPaid = (ids) => {
     const idSet = new Set(ids);
     const updated = jobs.map(j => idSet.has(j.id) ? { ...j, status: 'paid' } : j);
@@ -79,7 +85,7 @@ export default function App() {
 
       <main className="pb-32 max-w-lg mx-auto">
         {page === 'home'     && <Home jobs={jobs} onViewAll={() => setPage('logs')} onOpenModal={openModal} />}
-        {page === 'logs'     && <Logs jobs={jobs} onOpenModal={openModal} onMarkPaid={markJobsPaid} />}
+        {page === 'logs'     && <Logs jobs={jobs} onOpenModal={openModal} onMarkPaid={markJobsPaid} onDeleteJob={deleteJob} />}
         {page === 'mileage'  && <Mileage />}
         {page === 'pipeline' && <Pipeline onOpenProfile={setProfileKey} />}
         {page === 'tax'      && <Tax jobs={jobs} />}
