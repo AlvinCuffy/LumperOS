@@ -19,10 +19,11 @@ const SEED_JOBS = [
   { id: 7,  date: '2026-04-15', company: 'TAS Refrigerated Distribution', containerId: 'MNBU9111781', pieces: 1160, basePay: 55.00,  multiplier: '',    address: '18 Abacus Road, Brampton', additives: ['Interlock'],                              status: 'pending' },
   { id: 8,  date: '2026-04-16', company: 'TAS Refrigerated Distribution', containerId: 'MNBU3640031', pieces: 1160, basePay: 55.00,  multiplier: '',    address: '18 Abacus Road, Brampton', additives: ['Interlock'],                              status: 'pending' },
   { id: 9,  date: '2026-04-16', company: 'TAS Refrigerated Distribution', containerId: 'MNBU4676105', pieces: 1160, basePay: 55.00,  multiplier: '',    address: '18 Abacus Road, Brampton', additives: ['Interlock'],                              status: 'pending' },
-  { id: 10, date: '2026-04-20', company: 'TAS Refrigerated Distribution', containerId: 'SEGU9688486', pieces: 1800, basePay: 60.00,  multiplier: '',    address: '18 Abacus Road, Brampton', additives: ['Interlock','Labels Out'],                 status: 'pending' },
+  { id: 10, date: '2026-04-20', company: 'TAS Refrigerated Distribution', containerId: 'SEGU9688486',   pieces: 1800, basePay: 60.00,  multiplier: '',    address: '18 Abacus Road, Brampton', additives: ['Interlock','Labels Out'],                 status: 'pending' },
+  { id: 11, date: '2026-04-23', company: 'TAS Refrigerated Distribution', containerId: 'REPILE-26PAL', pieces: 1820, basePay: 60.00,  multiplier: '',    address: '18 Abacus Road, Brampton', additives: [],                                         status: 'pending' },
 ];
 
-const SEED_VERSION = 3;
+const SEED_VERSION = 4;
 
 function loadJobs() {
   try {
