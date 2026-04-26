@@ -43,38 +43,29 @@ export default async function handler(req, res) {
           },
           {
             type: 'text',
-            text: `This is a screenshot from the CLS (Canada Lumping Service) lumper dispatch app. Extract job details using these exact rules:
+            text: `This screenshot is from the CLS (Canada Lumping Service) app showing one completed lumper job. Read each labeled row carefully.
 
-FIELD MAPPING:
-- "Time" → date (extract YYYY-MM-DD only, e.g. "2026-04-14, 9:00 PM" → "2026-04-14")
-- "Container" → containerId (e.g. "OERU4009514")
-- "Pay" → shows a code like "1700-1849" then "$60.00" on the next line — basePay is the dollar amount ONLY (60.00)
-- "Address" → address
-- Ignore: Supervisor, Lumper, Completed
+THE SCREEN HAS THESE ROWS IN THIS EXACT ORDER:
+1. Large title at top → company name
+2. "Address" row → address
+3. "Supervisor" row → IGNORE
+4. "Time" row → job date. Read ONLY this row for the date. Format: YYYY-MM-DD. Example: "2026-04-14, 9:00 PM" → "2026-04-14"
+5. "Container" row → container ID (e.g. OERU4009514, MNBU3640031). Copy it exactly, letter by letter.
+6. "Lumper" row → IGNORE
+7. "Pay" row → shows a pay code (like 0-1699 or 1700-1849) then the dollar amount on the next line. Extract ONLY the dollar amount. Example: "$60.00" → 60.00
+8. "Completed" row → ⚠️ IGNORE COMPLETELY. Do NOT use any number, date, or time from this row. The time shown here (e.g. "3:23 AM") is NOT the job date.
+9. Grey notes box below → piece count and conditions. First number = pieces. Condition words = additives. Dimension patterns like 7x10 or 8x12 = IGNORE.
 
-NOTES BOX (the grey box below Pay/Completed):
-- Format is: PIECES CONDITION DIMENSIONS
-- Example: "1800 interlock 7x10"
-  → pieces = 1800 (the first number)
-  → additives = ["Interlock"] (the condition word)
-  → "7x10" is pallet stack dimensions — IGNORE IT, it is NOT a multiplier
-- More examples:
-  "1160 interlocked" → pieces: 1160, additives: ["Interlock"]
-  "1800 (10) INTERLOCK LABELS" → pieces: 1800, additives: ["Interlock","Labels Out"]
-  "320 MIXED HEAVY" → pieces: 320, additives: ["Mixed","Heavy"]
-- Numbers in parentheses like (10) = sub-counts, ignore for piece total
-- Dimension patterns like 7x10, 8x12, 6x8 = pallet dimensions, ignore completely
+NOTES BOX EXAMPLES:
+"1800 interlock 7x10" → pieces: 1800, additives: ["Interlock"]  (7x10 is dimensions, ignore)
+"1160 INTERLOCKED" → pieces: 1160, additives: ["Interlock"]
+"1800 (10) INTERLOCK LABELS" → pieces: 1800, additives: ["Interlock", "Labels Out"]
+"320 MIXED HEAVY" → pieces: 320, additives: ["Mixed", "Heavy"]
 
-CONDITION → ADDITIVE MAPPING:
-interlock/interlocked → Interlock
-mixed → Mixed
-heavy → Heavy
-high cube/high-cube → High-Cube
-tipped → Tipped
-labels/labels out → Labels Out
+CONDITION → ADDITIVE: interlock/interlocked→Interlock, mixed→Mixed, heavy→Heavy, high cube→High-Cube, tipped→Tipped, labels/labels out→Labels Out
 
-Return ONLY a raw JSON object, no markdown, no backticks:
-{"company":"string or null","containerId":"string or null","date":"YYYY-MM-DD or null","pieces":number or null,"basePay":number or null,"multiplier":"only if explicitly shown as e.g. 1.5x, otherwise null","address":"string or null","additives":["only from: ${ADDITIVES.join(', ')}"]}`,
+Return ONLY a raw JSON object, no markdown, no backticks, nothing else:
+{"company":"string or null","containerId":"string or null","date":"YYYY-MM-DD or null","pieces":number or null,"basePay":number or null,"multiplier":null,"address":"string or null","additives":["only values from: ${ADDITIVES.join(', ')}"]}`,
           },
         ],
       }],
