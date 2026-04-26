@@ -10,16 +10,42 @@ import Pipeline from './src/pages/Pipeline.jsx';
 import Tax from './src/pages/Tax.jsx';
 
 const SEED_JOBS = [
-  { id: 1, date: '2026-04-01', company: 'TAS Refrigerated Distribution', containerId: 'ZCLU9930419', pieces: 318,  basePay: 140.00, multiplier: '',    address: '18 Abacus Rd, Brampton',       additives: ['Heavy','Interlock','Labels Out','Mixed'], status: 'paid' },
-  { id: 2, date: '2026-04-06', company: 'TAS Refrigerated Distribution', containerId: 'KKFU6751964', pieces: null, basePay: 38.33,  multiplier: '',    address: '18 Abacus Rd, Brampton',       additives: ['Same Day'],                               status: 'paid' },
-  { id: 3, date: '2026-04-06', company: 'TAS Refrigerated Distribution', containerId: 'FSCU5734460', pieces: 1800, basePay: 75.00,  multiplier: '',    address: '18 Abacus Rd, Brampton',       additives: ['Same Day','Interlock'],                   status: 'paid' },
-  { id: 4, date: '2026-04-11', company: 'Fresh Taste Produce',           containerId: 'GINGER',      pieces: 1584, basePay: 187.53, multiplier: '1.5x',address: '11450 Steeles Ave, Brampton',  additives: ['Same Day'],                               status: 'paid' },
+  { id: 1,  date: '2026-04-01', company: 'TAS Refrigerated Distribution', containerId: 'ZCLU9930419', pieces: 318,  basePay: 140.00, multiplier: '',    address: '18 Abacus Road, Brampton', additives: ['Heavy','Interlock','Labels Out','Mixed'], status: 'paid' },
+  { id: 2,  date: '2026-04-06', company: 'TAS Refrigerated Distribution', containerId: 'KKFU6751964', pieces: null, basePay: 38.33,  multiplier: '',    address: '18 Abacus Road, Brampton', additives: ['Same Day'],                               status: 'paid' },
+  { id: 3,  date: '2026-04-06', company: 'TAS Refrigerated Distribution', containerId: 'FSCU5734460', pieces: 1800, basePay: 75.00,  multiplier: '',    address: '18 Abacus Road, Brampton', additives: ['Same Day','Interlock'],                   status: 'paid' },
+  { id: 4,  date: '2026-04-11', company: 'Fresh Taste Produce',           containerId: 'GINGER',      pieces: 1584, basePay: 187.53, multiplier: '1.5x',address: '11450 Steeles Ave, Brampton', additives: ['Same Day'],                             status: 'paid' },
+  { id: 5,  date: '2026-04-14', company: 'TAS Refrigerated Distribution', containerId: 'OERU4009514', pieces: 1800, basePay: 60.00,  multiplier: '',    address: '18 Abacus Road, Brampton', additives: ['Interlock'],                              status: 'pending' },
+  { id: 6,  date: '2026-04-15', company: 'TAS Refrigerated Distribution', containerId: 'MNBU4147375', pieces: 1160, basePay: 55.00,  multiplier: '',    address: '18 Abacus Road, Brampton', additives: ['Interlock'],                              status: 'pending' },
+  { id: 7,  date: '2026-04-15', company: 'TAS Refrigerated Distribution', containerId: 'MNBU9111781', pieces: 1160, basePay: 55.00,  multiplier: '',    address: '18 Abacus Road, Brampton', additives: ['Interlock'],                              status: 'pending' },
+  { id: 8,  date: '2026-04-16', company: 'TAS Refrigerated Distribution', containerId: 'MNBU3640031', pieces: 1160, basePay: 55.00,  multiplier: '',    address: '18 Abacus Road, Brampton', additives: ['Interlock'],                              status: 'pending' },
+  { id: 9,  date: '2026-04-16', company: 'TAS Refrigerated Distribution', containerId: 'MNBU4676105', pieces: 1160, basePay: 55.00,  multiplier: '',    address: '18 Abacus Road, Brampton', additives: ['Interlock'],                              status: 'pending' },
 ];
+
+const SEED_VERSION = 2;
 
 function loadJobs() {
   try {
-    const saved = localStorage.getItem('lumperos-jobs');
-    return saved ? JSON.parse(saved) : SEED_JOBS;
+    const version = Number(localStorage.getItem('lumperos-seed-v') ?? 0);
+    const saved   = localStorage.getItem('lumperos-jobs');
+
+    if (!saved) {
+      localStorage.setItem('lumperos-seed-v', SEED_VERSION);
+      localStorage.setItem('lumperos-jobs', JSON.stringify(SEED_JOBS));
+      return SEED_JOBS;
+    }
+
+    if (version < SEED_VERSION) {
+      // Merge: prepend any seed jobs whose containerId isn't already stored
+      const existing    = JSON.parse(saved);
+      const existingIds = new Set(existing.map(j => j.containerId));
+      const toAdd       = SEED_JOBS.filter(j => !existingIds.has(j.containerId));
+      const merged      = [...toAdd, ...existing];
+      localStorage.setItem('lumperos-seed-v', SEED_VERSION);
+      localStorage.setItem('lumperos-jobs', JSON.stringify(merged));
+      return merged;
+    }
+
+    return JSON.parse(saved);
   } catch {
     return SEED_JOBS;
   }
