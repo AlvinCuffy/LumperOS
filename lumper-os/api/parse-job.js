@@ -43,22 +43,38 @@ export default async function handler(req, res) {
           },
           {
             type: 'text',
-            text: `This is a screenshot from the CLS (Canada Lumping Service) lumper dispatch app. Extract job details using these CLS-specific rules:
+            text: `This is a screenshot from the CLS (Canada Lumping Service) lumper dispatch app. Extract job details using these exact rules:
 
-- "Time" field = the job date. Extract YYYY-MM-DD from it (e.g. "2026-04-15, 8:00 PM" → "2026-04-15")
-- "Container" field = the container ID (e.g. MNBU9111781)
-- "Pay" field shows as "CODE\\n$AMOUNT" — basePay is the dollar amount only (e.g. "$55.00" → 55.00)
-- Pieces are in a notes/description box. The format is: TOTAL_PIECES (optional sub-count) CONDITION WORDS. Examples:
+FIELD MAPPING:
+- "Time" → date (extract YYYY-MM-DD only, e.g. "2026-04-14, 9:00 PM" → "2026-04-14")
+- "Container" → containerId (e.g. "OERU4009514")
+- "Pay" → shows a code like "1700-1849" then "$60.00" on the next line — basePay is the dollar amount ONLY (60.00)
+- "Address" → address
+- Ignore: Supervisor, Lumper, Completed
+
+NOTES BOX (the grey box below Pay/Completed):
+- Format is: PIECES CONDITION DIMENSIONS
+- Example: "1800 interlock 7x10"
+  → pieces = 1800 (the first number)
+  → additives = ["Interlock"] (the condition word)
+  → "7x10" is pallet stack dimensions — IGNORE IT, it is NOT a multiplier
+- More examples:
   "1160 interlocked" → pieces: 1160, additives: ["Interlock"]
-  "1800 (10) INTERLOCK LABELS" → pieces: 1800, additives: ["Interlock", "Labels Out"]
-  "320 MIXED HEAVY" → pieces: 320, additives: ["Mixed", "Heavy"]
-  The first standalone number is always the total piece count. Numbers in parentheses like (10) are sub-counts — ignore them for pieces.
-- Condition words map to additives: INTERLOCK→Interlock, MIXED→Mixed, HEAVY→Heavy, HIGH CUBE/HIGH-CUBE→High-Cube, TIPPED→Tipped, LABELS/LABELS OUT→Labels Out
-- "Address" field = job site address
-- Ignore "Lumper", "Supervisor", "Completed" fields
+  "1800 (10) INTERLOCK LABELS" → pieces: 1800, additives: ["Interlock","Labels Out"]
+  "320 MIXED HEAVY" → pieces: 320, additives: ["Mixed","Heavy"]
+- Numbers in parentheses like (10) = sub-counts, ignore for piece total
+- Dimension patterns like 7x10, 8x12, 6x8 = pallet dimensions, ignore completely
 
-Return ONLY a raw JSON object (no markdown, no backticks):
-{"company":"string or null","containerId":"string or null","date":"YYYY-MM-DD or null","pieces":number or null,"basePay":number or null,"multiplier":"e.g. 1.5x or null","address":"string or null","additives":["only from: ${ADDITIVES.join(', ')}"]}`,
+CONDITION → ADDITIVE MAPPING:
+interlock/interlocked → Interlock
+mixed → Mixed
+heavy → Heavy
+high cube/high-cube → High-Cube
+tipped → Tipped
+labels/labels out → Labels Out
+
+Return ONLY a raw JSON object, no markdown, no backticks:
+{"company":"string or null","containerId":"string or null","date":"YYYY-MM-DD or null","pieces":number or null,"basePay":number or null,"multiplier":"only if explicitly shown as e.g. 1.5x, otherwise null","address":"string or null","additives":["only from: ${ADDITIVES.join(', ')}"]}`,
           },
         ],
       }],
