@@ -1,17 +1,68 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 const ADDITIVES = ['Heavy', 'Mixed', 'Interlock', 'High-Cube', 'Tipped', 'Same Day', 'Holiday', 'Labels Out'];
 
 const EMPTY = { date: '', company: '', containerId: '', pieces: '', basePay: '', multiplier: '', address: '' };
 
+function toBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function LogJobModal({ open, onClose, onSave }) {
   const [form, setForm] = useState(EMPTY);
   const [activeAdditives, setActiveAdditives] = useState({});
+  const [scanning, setScanning] = useState(false);
+  const [scanError, setScanError] = useState('');
+  const fileRef = useRef(null);
 
   if (!open) return null;
 
   const set = (field) => (e) => setForm(prev => ({ ...prev, [field]: e.target.value }));
   const toggleAdditive = (name) => setActiveAdditives(prev => ({ ...prev, [name]: !prev[name] }));
+
+  const handleScanFile = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setScanError('');
+    setScanning(true);
+    try {
+      const imageBase64 = await toBase64(file);
+      const res = await fetch('/api/parse-job', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageBase64, mediaType: file.type }),
+      });
+      if (!res.ok) throw new Error(`Server error ${res.status}`);
+      const data = await res.json();
+
+      setForm(prev => ({
+        date:        data.date        || prev.date,
+        company:     data.company     || prev.company,
+        containerId: data.containerId || prev.containerId,
+        pieces:      data.pieces      != null ? String(data.pieces)  : prev.pieces,
+        basePay:     data.basePay     != null ? String(data.basePay) : prev.basePay,
+        multiplier:  data.multiplier  || prev.multiplier,
+        address:     data.address     || prev.address,
+      }));
+
+      if (Array.isArray(data.additives) && data.additives.length > 0) {
+        const next = {};
+        data.additives.forEach(a => { next[a] = true; });
+        setActiveAdditives(next);
+      }
+    } catch (err) {
+      setScanError('Could not read job — please fill in manually.');
+      console.error(err);
+    } finally {
+      setScanning(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
+  };
 
   const handleSave = () => {
     if (!form.company || !form.basePay) return;
@@ -28,6 +79,7 @@ export default function LogJobModal({ open, onClose, onSave }) {
     });
     setForm(EMPTY);
     setActiveAdditives({});
+    setScanError('');
     onClose();
   };
 
@@ -40,7 +92,38 @@ export default function LogJobModal({ open, onClose, onSave }) {
       <div className="modal-sheet">
         <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-5" />
         <div className="font-headline text-xl font-bold mb-1">Log a Container Job</div>
-        <div className="text-sm text-slate-500 mb-5">Record job details, additives, and location for mileage tracking.</div>
+        <div className="text-sm text-slate-500 mb-4">Record job details, additives, and location for mileage tracking.</div>
+
+        {/* AI Scan button */}
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleScanFile}
+        />
+        <button
+          onClick={() => fileRef.current?.click()}
+          disabled={scanning}
+          className="w-full mb-4 py-3 rounded-xl border border-dashed border-orange-400/40 flex items-center justify-center gap-2 text-sm font-semibold text-orange-400 disabled:opacity-50 active:bg-orange-400/5 transition-colors"
+          style={{ background: 'rgba(251,146,60,0.04)' }}
+        >
+          {scanning ? (
+            <>
+              <span className="material-symbols-outlined text-lg animate-spin">progress_activity</span>
+              Scanning with AI…
+            </>
+          ) : (
+            <>
+              <span className="material-symbols-outlined text-lg">photo_camera</span>
+              Scan Job from Photo
+            </>
+          )}
+        </button>
+
+        {scanError && (
+          <div className="mb-3 text-xs text-red-400 bg-red-400/10 rounded-xl px-3 py-2">{scanError}</div>
+        )}
 
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">

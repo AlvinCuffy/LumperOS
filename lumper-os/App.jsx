@@ -10,10 +10,10 @@ import Pipeline from './src/pages/Pipeline.jsx';
 import Tax from './src/pages/Tax.jsx';
 
 const SEED_JOBS = [
-  { id: 1, date: '2026-04-01', company: 'TAS Refrigerated Distribution', containerId: 'ZCLU9930419', pieces: 318,  basePay: 140.00, multiplier: '',    address: '18 Abacus Rd, Brampton',       additives: ['Heavy','Interlock','Labels Out','Mixed'] },
-  { id: 2, date: '2026-04-06', company: 'TAS Refrigerated Distribution', containerId: 'KKFU6751964', pieces: null, basePay: 38.33,  multiplier: '',    address: '18 Abacus Rd, Brampton',       additives: ['Same Day'] },
-  { id: 3, date: '2026-04-06', company: 'TAS Refrigerated Distribution', containerId: 'FSCU5734460', pieces: 1800, basePay: 75.00,  multiplier: '',    address: '18 Abacus Rd, Brampton',       additives: ['Same Day','Interlock'] },
-  { id: 4, date: '2026-04-11', company: 'Fresh Taste Produce',           containerId: 'GINGER',      pieces: 1584, basePay: 187.53, multiplier: '1.5x',address: '11450 Steeles Ave, Brampton',  additives: ['Same Day'] },
+  { id: 1, date: '2026-04-01', company: 'TAS Refrigerated Distribution', containerId: 'ZCLU9930419', pieces: 318,  basePay: 140.00, multiplier: '',    address: '18 Abacus Rd, Brampton',       additives: ['Heavy','Interlock','Labels Out','Mixed'], status: 'paid' },
+  { id: 2, date: '2026-04-06', company: 'TAS Refrigerated Distribution', containerId: 'KKFU6751964', pieces: null, basePay: 38.33,  multiplier: '',    address: '18 Abacus Rd, Brampton',       additives: ['Same Day'],                               status: 'paid' },
+  { id: 3, date: '2026-04-06', company: 'TAS Refrigerated Distribution', containerId: 'FSCU5734460', pieces: 1800, basePay: 75.00,  multiplier: '',    address: '18 Abacus Rd, Brampton',       additives: ['Same Day','Interlock'],                   status: 'paid' },
+  { id: 4, date: '2026-04-11', company: 'Fresh Taste Produce',           containerId: 'GINGER',      pieces: 1584, basePay: 187.53, multiplier: '1.5x',address: '11450 Steeles Ave, Brampton',  additives: ['Same Day'],                               status: 'paid' },
 ];
 
 function loadJobs() {
@@ -32,9 +32,16 @@ export default function App() {
   const [jobs, setJobs] = useState(loadJobs);
 
   const addJob = (job) => {
-    const newJobs = [job, ...jobs];
+    const newJobs = [{ ...job, status: 'pending' }, ...jobs];
     setJobs(newJobs);
     localStorage.setItem('lumperos-jobs', JSON.stringify(newJobs));
+  };
+
+  const markJobsPaid = (ids) => {
+    const idSet = new Set(ids);
+    const updated = jobs.map(j => idSet.has(j.id) ? { ...j, status: 'paid' } : j);
+    setJobs(updated);
+    localStorage.setItem('lumperos-jobs', JSON.stringify(updated));
   };
 
   const openModal = () => setModalOpen(true);
@@ -46,7 +53,7 @@ export default function App() {
 
       <main className="pb-32 max-w-lg mx-auto">
         {page === 'home'     && <Home jobs={jobs} onViewAll={() => setPage('logs')} onOpenModal={openModal} />}
-        {page === 'logs'     && <Logs jobs={jobs} onOpenModal={openModal} />}
+        {page === 'logs'     && <Logs jobs={jobs} onOpenModal={openModal} onMarkPaid={markJobsPaid} />}
         {page === 'mileage'  && <Mileage />}
         {page === 'pipeline' && <Pipeline onOpenProfile={setProfileKey} />}
         {page === 'tax'      && <Tax jobs={jobs} />}
