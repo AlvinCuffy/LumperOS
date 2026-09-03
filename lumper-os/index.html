@@ -1,12 +1,1100 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>LumperOS</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LumperOS — Alvin Cuffy</title>
+<script>
+  const _warn = console.warn.bind(console);
+  console.warn = (...args) => {
+    if (typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) return;
+    _warn(...args);
+  };
+</script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "bg-base": "#0B0F1A",
+          "bg-card": "#111827",
+          "bg-card2": "#161E2E",
+          "bg-hover": "#1A2436",
+          "primary-container": "#FB923C",
+          "on-primary": "#301400",
+          "secondary": "#2DD4BF",
+          "tertiary": "#60A5FA",
+          "surface": "#0B0F1A",
+          "surface-container": "#111827",
+          "surface-container-low": "#0f1525",
+          "surface-container-high": "#161E2E",
+          "surface-container-highest": "#1A2436",
+          "on-surface": "#F1F5F9",
+          "on-surface-variant": "#94A3B8",
+          "outline-variant": "rgba(255,255,255,0.06)",
+          "accent-green": "#4ADE80",
+          "accent-purple": "#A78BFA"
+        },
+        fontFamily: {
+          headline: ["Space Grotesk"],
+          body: ["DM Sans"],
+          mono: ["JetBrains Mono"]
+        },
+        borderRadius: {
+          DEFAULT: "0.5rem",
+          xl: "1rem",
+          "2xl": "1.25rem",
+          "3xl": "1.5rem",
+          full: "9999px"
+        }
+      }
+    }
+  }
+</script>
+<style>
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+  .fill-icon { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+
+  body { min-height: 100dvh; font-family: 'DM Sans', sans-serif; }
+
+  .glow-orange { box-shadow: 0 0 24px rgba(251,146,60,0.25); }
+  .glow-teal   { box-shadow: 0 0 20px rgba(45,212,191,0.2); }
+  .glow-blue   { box-shadow: 0 0 20px rgba(96,165,250,0.2); }
+
+  .bar-top { border-radius: 4px 4px 0 0; }
+
+  .page { display: none; animation: fadeIn 0.2s ease; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .add-pill { cursor: pointer; transition: all 0.15s; }
+  .add-pill.on { background: rgba(45,212,191,0.15); color: #2DD4BF; border-color: rgba(45,212,191,0.3); }
+
+  .dot-active { background: #FB923C; box-shadow: 0 0 6px #FB923C; animation: pulse 2s infinite; }
+  .dot-sent   { background: #60A5FA; box-shadow: 0 0 6px #60A5FA; }
+  .dot-replied{ background: #4ADE80; box-shadow: 0 0 6px #4ADE80; }
+  .dot-sep    { background: #A78BFA; box-shadow: 0 0 6px #A78BFA; }
+  .dot-none   { background: #475569; }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px); z-index:200; align-items:flex-end; }
+  .modal-overlay.open { display:flex; }
+  .modal-sheet { width:100%; background:#111827; border-radius:24px 24px 0 0; padding:28px 20px 40px; animation:slideUp 0.25s ease; max-height:90vh; overflow-y:auto; }
+  @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+
+  ::-webkit-scrollbar { width:3px; }
+  ::-webkit-scrollbar-thumb { background:#1A2436; border-radius:2px; }
+
+  .tag { font-size:10px; font-weight:600; padding:2px 8px; border-radius:20px; border:1px solid; }
+  .tag-orange { background:rgba(251,146,60,0.1); color:#FB923C; border-color:rgba(251,146,60,0.25); }
+  .tag-teal   { background:rgba(45,212,191,0.1); color:#2DD4BF; border-color:rgba(45,212,191,0.25); }
+  .tag-blue   { background:rgba(96,165,250,0.1); color:#60A5FA; border-color:rgba(96,165,250,0.25); }
+  .tag-green  { background:rgba(74,222,128,0.1); color:#4ADE80; border-color:rgba(74,222,128,0.25); }
+  .tag-purple { background:rgba(167,139,250,0.1); color:#A78BFA; border-color:rgba(167,139,250,0.25); }
+  .tag-yellow { background:rgba(250,204,21,0.1); color:#FCD34D; border-color:rgba(250,204,21,0.25); }
+  .tag-muted  { background:rgba(71,85,105,0.2); color:#64748B; border-color:rgba(71,85,105,0.3); }
+
+  .filter-pill { cursor:pointer; transition:all 0.15s; border:1px solid rgba(255,255,255,0.08); background:#161E2E; color:#64748B; font-size:11px; font-weight:600; padding:5px 12px; border-radius:20px; white-space:nowrap; }
+  .filter-pill.active { background:rgba(251,146,60,0.15); color:#FB923C; border-color:rgba(251,146,60,0.3); }
+
+  .form-input { width:100%; background:#161E2E; border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:10px 14px; color:#F1F5F9; font-size:14px; outline:none; transition:border-color 0.15s; font-family:'DM Sans',sans-serif; }
+  .form-input:focus { border-color:#FB923C; }
+  .form-label { font-size:10px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#475569; margin-bottom:5px; display:block; }
+
+  .stagger > * { animation: fadeIn 0.3s ease both; }
+  .stagger > *:nth-child(1){animation-delay:0.05s}
+  .stagger > *:nth-child(2){animation-delay:0.1s}
+  .stagger > *:nth-child(3){animation-delay:0.15s}
+  .stagger > *:nth-child(4){animation-delay:0.2s}
+  .stagger > *:nth-child(5){animation-delay:0.25s}
+
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-orange-500/20">
+
+<header class="sticky top-0 z-40 flex justify-between items-center px-5 py-4 bg-surface/80 backdrop-blur-xl border-b border-white/5">
+  <div class="flex items-center gap-3">
+    <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-black font-black text-sm" style="box-shadow:0 0 16px rgba(251,146,60,0.4)">📦</div>
+    <span class="font-headline text-xl font-bold tracking-tight text-orange-400">LumperOS</span>
+  </div>
+  <div class="flex items-center gap-2">
+    <div class="text-xs font-mono bg-orange-500/10 text-orange-400 border border-orange-500/20 px-3 py-1 rounded-full">Apr 7–13</div>
+    <div class="w-9 h-9 rounded-full bg-gradient-to-br from-orange-400 to-teal-400 flex items-center justify-center text-black font-bold text-sm" style="box-shadow:0 0 0 2px rgba(251,146,60,0.3)">AC</div>
+  </div>
+</header>
+
+<main class="pb-32 max-w-lg mx-auto">
+
+  <div class="page active" id="page-home">
+    <div class="px-5 pt-6 space-y-5 stagger">
+
+      <section class="relative overflow-hidden rounded-3xl p-6 border border-white/5" style="background:linear-gradient(135deg,#161E2E 0%,#111827 100%)">
+        <div class="absolute -right-10 -top-10 w-48 h-48 rounded-full" style="background:rgba(251,146,60,0.08);filter:blur(40px)"></div>
+        <div class="absolute -left-10 -bottom-10 w-40 h-40 rounded-full" style="background:rgba(45,212,191,0.05);filter:blur(40px)"></div>
+        <div class="relative z-10">
+          <div class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 mb-2">Week Earnings</div>
+          <div class="flex items-baseline gap-1 mb-3">
+            <span class="font-headline text-5xl font-black text-orange-400 tracking-tight">$440</span>
+            <span class="font-headline text-2xl font-semibold text-orange-400/60">.86</span>
+          </div>
+          <div class="flex items-center gap-2 text-emerald-400 text-xs font-semibold mb-5">
+            <span class="material-symbols-outlined text-sm">trending_up</span>
+            <span>↑ 214% vs last week</span>
+          </div>
+          <div class="flex items-end gap-1 h-12">
+            <div class="flex-1 bar-top bg-white/5 hover:bg-orange-400/20 transition-colors" style="height:30%"></div>
+            <div class="flex-1 bar-top bg-white/5 hover:bg-orange-400/20 transition-colors" style="height:45%"></div>
+            <div class="flex-1 bar-top bg-white/5 hover:bg-orange-400/20 transition-colors" style="height:35%"></div>
+            <div class="flex-1 bar-top bg-white/5 hover:bg-orange-400/20 transition-colors" style="height:60%"></div>
+            <div class="flex-1 bar-top bg-white/5 hover:bg-orange-400/20 transition-colors" style="height:50%"></div>
+            <div class="flex-1 bar-top bg-white/5 hover:bg-orange-400/20 transition-colors" style="height:75%"></div>
+            <div class="flex-1 bar-top bg-white/5 hover:bg-orange-400/20 transition-colors" style="height:80%"></div>
+            <div class="flex-1 bar-top bg-orange-400" style="height:100%;box-shadow:0 0 8px rgba(251,146,60,0.5)"></div>
+          </div>
+          <div class="flex justify-between mt-1">
+            <span class="text-[9px] text-slate-600 font-mono">W1</span>
+            <span class="text-[9px] text-slate-600 font-mono">W2</span>
+            <span class="text-[9px] text-slate-600 font-mono">W3</span>
+            <span class="text-[9px] text-slate-600 font-mono">W4</span>
+            <span class="text-[9px] text-slate-600 font-mono">W5</span>
+            <span class="text-[9px] text-slate-600 font-mono">W6</span>
+            <span class="text-[9px] text-slate-600 font-mono">W7</span>
+            <span class="text-[9px] text-orange-400 font-mono font-semibold">NOW</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="grid grid-cols-3 gap-3">
+        <div class="rounded-2xl p-4 border border-white/5 flex flex-col gap-3" style="background:#161E2E">
+          <div class="w-8 h-8 rounded-xl bg-orange-400/10 flex items-center justify-center">
+            <span class="material-symbols-outlined text-orange-400 text-lg">inventory_2</span>
+          </div>
+          <div>
+            <div class="font-headline text-2xl font-bold text-orange-400">4</div>
+            <div class="text-[9px] font-semibold uppercase tracking-widest text-slate-500 mt-0.5">Containers</div>
+          </div>
+        </div>
+        <div class="rounded-2xl p-4 border border-white/5 flex flex-col gap-3" style="background:#161E2E">
+          <div class="w-8 h-8 rounded-xl bg-teal-400/10 flex items-center justify-center">
+            <span class="material-symbols-outlined text-teal-400 text-lg">account_balance_wallet</span>
+          </div>
+          <div>
+            <div class="font-headline text-2xl font-bold text-teal-400">$154</div>
+            <div class="text-[9px] font-semibold uppercase tracking-widest text-slate-500 mt-0.5">Tax Saved</div>
+          </div>
+        </div>
+        <div class="rounded-2xl p-4 border border-white/5 flex flex-col gap-3" style="background:#161E2E">
+          <div class="w-8 h-8 rounded-xl bg-blue-400/10 flex items-center justify-center">
+            <span class="material-symbols-outlined text-blue-400 text-lg">hub</span>
+          </div>
+          <div>
+            <div class="font-headline text-2xl font-bold text-blue-400">20</div>
+            <div class="text-[9px] font-semibold uppercase tracking-widest text-slate-500 mt-0.5">Companies</div>
+          </div>
+        </div>
+      </div>
+
+      <section>
+        <div class="flex justify-between items-center mb-3">
+          <h2 class="font-headline text-lg font-bold">Recent Jobs</h2>
+          <button class="text-xs text-orange-400 font-semibold" onclick="switchPage('logs')">View All →</button>
+        </div>
+        <div class="space-y-3">
+          <div class="flex items-center justify-between p-4 rounded-2xl border border-white/5 hover:border-white/10 transition-all" style="background:#161E2E">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-orange-400/10 flex items-center justify-center text-xl">🧊</div>
+              <div>
+                <div class="text-sm font-semibold text-slate-200">TAS Refrigerated</div>
+                <div class="flex gap-1 mt-1 flex-wrap">
+                  <span class="tag tag-teal">Heavy</span>
+                  <span class="tag tag-teal">Interlock</span>
+                </div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="font-mono font-semibold text-emerald-400">$140.00</div>
+              <div class="text-[9px] text-slate-600 uppercase tracking-wider">Apr 1</div>
+            </div>
+          </div>
+          <div class="flex items-center justify-between p-4 rounded-2xl border border-white/5 hover:border-white/10 transition-all" style="background:#161E2E">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-400/10 flex items-center justify-center text-xl">🥬</div>
+              <div>
+                <div class="text-sm font-semibold text-slate-200">Fresh Taste Produce</div>
+                <div class="flex gap-1 mt-1">
+                  <span class="tag tag-orange">1.5× Multiplier</span>
+                </div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="font-mono font-semibold text-emerald-400">$187.53</div>
+              <div class="text-[9px] text-slate-600 uppercase tracking-wider">Apr 11</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div class="rounded-2xl p-4 border border-white/5" style="background:linear-gradient(135deg,rgba(251,146,60,0.08),transparent)">
+          <div class="text-xs font-semibold text-slate-400 mb-1">Mileage Split</div>
+          <div class="font-headline text-2xl font-bold text-orange-400">30%</div>
+          <div class="text-xs text-slate-500 mt-1">210 of 700 km business</div>
+        </div>
+        <div class="rounded-2xl p-4 border border-white/5" style="background:#161E2E">
+          <div class="text-xs font-semibold text-slate-400 mb-1">Tax Alert</div>
+          <div class="font-headline text-2xl font-bold text-emerald-400">$286</div>
+          <div class="text-xs text-slate-500 mt-1">Take-home after set-aside</div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl p-4 border flex items-center gap-3" style="background:rgba(167,139,250,0.06);border-color:rgba(167,139,250,0.2)">
+        <div class="w-10 h-10 rounded-xl bg-purple-400/10 flex items-center justify-center text-xl flex-shrink-0">📌</div>
+        <div>
+          <div class="text-sm font-semibold text-purple-300">September Pipeline Active</div>
+          <div class="text-xs text-slate-500 mt-0.5">2 companies saved for full availability in Sep 2026</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="page" id="page-logs">
+    <div class="px-5 pt-6 space-y-4 stagger">
+      <div class="flex justify-between items-center">
+        <h2 class="font-headline text-2xl font-bold">Job Log</h2>
+        <button onclick="openModal()" class="flex items-center gap-1 bg-orange-400 text-black text-xs font-bold px-4 py-2 rounded-full" style="box-shadow:0 0 16px rgba(251,146,60,0.3)">
+          <span class="material-symbols-outlined text-sm">add</span> Log Job
+        </button>
+      </div>
+
+      <div class="rounded-2xl p-4 border border-white/5 flex justify-between" style="background:#161E2E">
+        <div class="text-center">
+          <div class="font-mono text-lg font-bold text-orange-400">$440.86</div>
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 mt-0.5">Total Pay</div>
+        </div>
+        <div class="w-px bg-white/5"></div>
+        <div class="text-center">
+          <div class="font-mono text-lg font-bold text-teal-400">4</div>
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 mt-0.5">Jobs</div>
+        </div>
+        <div class="w-px bg-white/5"></div>
+        <div class="text-center">
+          <div class="font-mono text-lg font-bold text-blue-400">3,702</div>
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 mt-0.5">Pieces</div>
+        </div>
+        <div class="w-px bg-white/5"></div>
+        <div class="text-center">
+          <div class="font-mono text-lg font-bold text-slate-400">$0</div>
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 mt-0.5">HST</div>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <div class="rounded-2xl p-4 border border-white/5" style="background:#161E2E">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <div class="text-sm font-bold text-slate-200">TAS Refrigerated Distribution</div>
+              <div class="font-mono text-xs text-slate-500 mt-0.5">ZCLU9930419 · 318 pcs · 12 SKUs</div>
+            </div>
+            <div class="text-right">
+              <div class="font-mono font-bold text-emerald-400">$140.00</div>
+              <div class="text-[9px] text-slate-600">Apr 1, 2026</div>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-1">
+            <span class="tag tag-teal">Heavy</span>
+            <span class="tag tag-teal">Interlock</span>
+            <span class="tag tag-teal">Labels Out</span>
+            <span class="tag tag-teal">Mixed</span>
+          </div>
+        </div>
+
+        <div class="rounded-2xl p-4 border border-white/5" style="background:#161E2E">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <div class="text-sm font-bold text-slate-200">TAS Refrigerated Distribution</div>
+              <div class="font-mono text-xs text-slate-500 mt-0.5">KKFU6751964 · Half 3 Ways</div>
+            </div>
+            <div class="text-right">
+              <div class="font-mono font-bold text-emerald-400">$38.33</div>
+              <div class="text-[9px] text-slate-600">Apr 6, 2026</div>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-1">
+            <span class="tag tag-blue">Same Day Booking</span>
+          </div>
+        </div>
+
+        <div class="rounded-2xl p-4 border border-white/5" style="background:#161E2E">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <div class="text-sm font-bold text-slate-200">TAS Refrigerated Distribution</div>
+              <div class="font-mono text-xs text-slate-500 mt-0.5">FSCU5734460 · 1800 pcs</div>
+            </div>
+            <div class="text-right">
+              <div class="font-mono font-bold text-emerald-400">$75.00</div>
+              <div class="text-[9px] text-slate-600">Apr 6, 2026</div>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-1">
+            <span class="tag tag-blue">Same Day Booking</span>
+            <span class="tag tag-teal">Interlock</span>
+          </div>
+        </div>
+
+        <div class="rounded-2xl p-4 border border-orange-400/20" style="background:rgba(251,146,60,0.05)">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <div class="text-sm font-bold text-slate-200">Fresh Taste Produce</div>
+              <div class="font-mono text-xs text-slate-500 mt-0.5">GINGER · 1584 pcs · 11450 Steeles</div>
+            </div>
+            <div class="text-right">
+              <div class="font-mono font-bold text-emerald-400">$187.53</div>
+              <div class="text-[9px] text-orange-400 font-semibold">1.5× · Apr 11</div>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-1">
+            <span class="tag tag-orange">1.5× Multiplier</span>
+            <span class="tag tag-blue">Same Day Booking</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="page-mileage">
+    <div class="px-5 pt-6 space-y-4 stagger">
+      <div class="flex justify-between items-center">
+        <h2 class="font-headline text-2xl font-bold">Mileage Tracker</h2>
+        <button class="flex items-center gap-1 bg-teal-400 text-black text-xs font-bold px-4 py-2 rounded-full">
+          <span class="material-symbols-outlined text-sm">add</span> Log Trip
+        </button>
+      </div>
+
+      <div class="rounded-3xl p-6 border border-white/5" style="background:#161E2E">
+        <div class="flex items-center gap-6">
+          <div class="relative flex-shrink-0">
+            <svg width="110" height="110" viewBox="0 0 110 110">
+              <circle cx="55" cy="55" r="44" fill="none" stroke="#1A2436" stroke-width="10"/>
+              <circle cx="55" cy="55" r="44" fill="none" stroke="#FB923C" stroke-width="10"
+                      stroke-linecap="round"
+                      stroke-dasharray="276.5"
+                      stroke-dashoffset="193.6"
+                      transform="rotate(-90 55 55)"
+                      style="filter:drop-shadow(0 0 6px rgba(251,146,60,0.5))"/>
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <div class="font-headline text-2xl font-bold text-orange-400">30%</div>
+              <div class="text-[9px] text-slate-500 uppercase tracking-wider">Business</div>
+            </div>
+          </div>
+          <div class="flex-1 space-y-3">
+            <div>
+              <div class="text-xs text-slate-500 mb-1">Work Kilometers</div>
+              <div class="font-mono text-xl font-bold text-orange-400">210 km</div>
+              <div class="mt-1 h-1.5 rounded-full bg-white/5 overflow-hidden">
+                <div class="h-full bg-orange-400 rounded-full" style="width:30%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="text-xs text-slate-500 mb-1">Total Kilometers</div>
+              <div class="font-mono text-xl font-bold text-slate-300">700 km</div>
+              <div class="mt-1 h-1.5 rounded-full bg-white/5 overflow-hidden">
+                <div class="h-full bg-slate-600 rounded-full" style="width:100%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-white/5 grid grid-cols-3 gap-2 text-center">
+          <div>
+            <div class="font-mono text-sm font-semibold text-orange-400">$0.73</div>
+            <div class="text-[9px] text-slate-500 uppercase tracking-wider">Rate/km</div>
+          </div>
+          <div>
+            <div class="font-mono text-sm font-semibold text-teal-400">$153.30</div>
+            <div class="text-[9px] text-slate-500 uppercase tracking-wider">Deductible</div>
+          </div>
+          <div>
+            <div class="font-mono text-sm font-semibold text-blue-400">30%</div>
+            <div class="text-[9px] text-slate-500 uppercase tracking-wider">Vehicle %</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl p-4 border" style="background:rgba(45,212,191,0.05);border-color:rgba(45,212,191,0.15)">
+        <div class="text-xs font-semibold text-teal-400 mb-1">CRA Rule — How Trips Are Counted</div>
+        <div class="text-xs text-slate-400 leading-relaxed">Count the full round trip: Home → Job Site → Home. If you go Site A → Site B → Home, count both legs. This % is applied to your vehicle costs (gas, insurance, maintenance) as your business deduction.</div>
+      </div>
+
+      <div>
+        <h3 class="font-semibold text-sm text-slate-400 uppercase tracking-wider mb-3">Recent Trips</h3>
+        <div class="space-y-2">
+          <div class="flex items-center justify-between p-3 rounded-xl border border-white/5" style="background:#161E2E">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-teal-400 text-lg">route</span>
+              <div>
+                <div class="text-sm font-medium text-slate-200">Home → 18 Abacus Rd</div>
+                <div class="text-xs text-slate-500">Apr 1 · TAS Refrigerated</div>
+              </div>
+            </div>
+            <div class="font-mono text-sm text-teal-400">32 km</div>
+          </div>
+          <div class="flex items-center justify-between p-3 rounded-xl border border-white/5" style="background:#161E2E">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-teal-400 text-lg">route</span>
+              <div>
+                <div class="text-sm font-medium text-slate-200">Home → 11450 Steeles Ave</div>
+                <div class="text-xs text-slate-500">Apr 11 · Fresh Taste Produce</div>
+              </div>
+            </div>
+            <div class="font-mono text-sm text-teal-400">28 km</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="page-pipeline">
+    <div class="px-5 pt-6 space-y-4 stagger">
+      <div class="flex justify-between items-center">
+        <h2 class="font-headline text-2xl font-bold">Company Pipeline</h2>
+        <div class="font-mono text-xs text-slate-500">20 companies</div>
+      </div>
+
+      <div class="grid grid-cols-4 gap-2">
+        <div class="rounded-xl p-3 text-center" style="background:#161E2E">
+          <div class="font-mono font-bold text-orange-400">1</div>
+          <div class="text-[9px] text-slate-500 uppercase tracking-wider mt-0.5">Active</div>
+        </div>
+        <div class="rounded-xl p-3 text-center" style="background:#161E2E">
+          <div class="font-mono font-bold text-blue-400">4</div>
+          <div class="text-[9px] text-slate-500 uppercase tracking-wider mt-0.5">Texted</div>
+        </div>
+        <div class="rounded-xl p-3 text-center" style="background:#161E2E">
+          <div class="font-mono font-bold text-purple-400">2</div>
+          <div class="text-[9px] text-slate-500 uppercase tracking-wider mt-0.5">Sep 2026</div>
+        </div>
+        <div class="rounded-xl p-3 text-center" style="background:#161E2E">
+          <div class="font-mono font-bold text-slate-400">13</div>
+          <div class="text-[9px] text-slate-500 uppercase tracking-wider mt-0.5">Pending</div>
+        </div>
+      </div>
+
+      <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+        <div class="filter-pill active" onclick="filterPipe(this,'all')">All</div>
+        <div class="filter-pill" onclick="filterPipe(this,'overnight')">🌙 Overnight</div>
+        <div class="filter-pill" onclick="filterPipe(this,'weekend')">📅 Weekend</div>
+        <div class="filter-pill" onclick="filterPipe(this,'september')">📌 September</div>
+        <div class="filter-pill" onclick="filterPipe(this,'active')">✅ Active</div>
+      </div>
+
+      <div class="space-y-2" id="pipe-list">
+
+        <div class="pipe-card rounded-2xl p-4 border border-white/5 cursor-pointer hover:border-white/10 transition-all" data-tags="active overnight" style="background:#161E2E" onclick="openProfile('cls')">
+          <div class="flex items-start gap-3">
+            <div class="w-2 h-2 rounded-full dot-active flex-shrink-0 mt-1.5"></div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-bold text-slate-200">Canada Lumper Services (CLS)</div>
+              <div class="font-mono text-xs text-slate-500 mt-0.5">julian@canlumpers.com · 647-537-0625</div>
+              <div class="flex flex-wrap gap-1 mt-2">
+                <span class="tag tag-orange">🌙 Overnight</span>
+                <span class="tag tag-green">Active ✓</span>
+              </div>
+              <div class="text-xs text-slate-600 mt-1.5">Current employer. Nights working.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pipe-card rounded-2xl p-4 border border-white/5 cursor-pointer hover:border-white/10 transition-all" onclick="openProfile('greatnorth')" data-tags="september weekend" style="background:#161E2E">
+          <div class="flex items-start gap-3">
+            <div class="w-2 h-2 rounded-full dot-sep flex-shrink-0 mt-1.5"></div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-bold text-slate-200">Great North Lumper Services</div>
+              <div class="font-mono text-xs text-slate-500 mt-0.5">416-419-5222</div>
+              <div class="flex flex-wrap gap-1 mt-2">
+                <span class="tag tag-yellow">☀️ Morning/Afternoon</span>
+                <span class="tag tag-purple">📌 Sep 2026</span>
+              </div>
+              <div class="text-xs text-slate-600 mt-1.5">Replied — mornings only. Weekends go to FT staff. Follow up Sep for FT role.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pipe-card rounded-2xl p-4 border border-white/5 cursor-pointer hover:border-white/10 transition-all" onclick="openProfile('trojan')" data-tags="overnight weekend" style="background:#161E2E">
+          <div class="flex items-start gap-3">
+            <div class="w-2 h-2 rounded-full dot-sent flex-shrink-0 mt-1.5"></div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-bold text-slate-200">Trojan Lumping Services</div>
+              <div class="font-mono text-xs text-slate-500 mt-0.5">416-716-1404 · stevenjames@trojanlumping.com</div>
+              <div class="flex flex-wrap gap-1 mt-2">
+                <span class="tag tag-orange">🌙 Overnight</span>
+                <span class="tag tag-blue">📅 Weekend</span>
+                <span class="tag tag-blue">Texted</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pipe-card rounded-2xl p-4 border border-white/5 cursor-pointer hover:border-white/10 transition-all" onclick="openProfile('containerguyz')" data-tags="overnight weekend" style="background:#161E2E">
+          <div class="flex items-start gap-3">
+            <div class="w-2 h-2 rounded-full dot-sent flex-shrink-0 mt-1.5"></div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-bold text-slate-200">Container Guyz</div>
+              <div class="font-mono text-xs text-slate-500 mt-0.5">647-234-4214 · containerguyz@gmail.com</div>
+              <div class="flex flex-wrap gap-1 mt-2">
+                <span class="tag tag-orange">🌙 Overnight</span>
+                <span class="tag tag-blue">Texted</span>
+              </div>
+              <div class="text-xs text-slate-600 mt-1.5">Mississauga — fastest growing lumper co.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pipe-card rounded-2xl p-4 border border-white/5 cursor-pointer hover:border-white/10 transition-all" onclick="openProfile('bcs')" data-tags="overnight weekend" style="background:#161E2E">
+          <div class="flex items-start gap-3">
+            <div class="w-2 h-2 rounded-full dot-sent flex-shrink-0 mt-1.5"></div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-bold text-slate-200">Brothers Container Service (BCS)</div>
+              <div class="font-mono text-xs text-slate-500 mt-0.5">416-908-7581 · 905-399-1354</div>
+              <div class="flex flex-wrap gap-1 mt-2">
+                <span class="tag tag-orange">🌙 24/7</span>
+                <span class="tag tag-blue">📅 Weekend</span>
+                <span class="tag tag-blue">Texted</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pipe-card rounded-2xl p-4 border border-white/5" data-tags="overnight" style="background:#161E2E">
+          <div class="flex items-start gap-3">
+            <div class="w-2 h-2 rounded-full dot-sent flex-shrink-0 mt-1.5"></div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-bold text-slate-200">QuickCan Lumping Service</div>
+              <div class="font-mono text-xs text-slate-500 mt-0.5">647-909-3320</div>
+              <div class="flex flex-wrap gap-1 mt-2">
+                <span class="tag tag-orange">🌙 Overnight</span>
+                <span class="tag tag-blue">Texted</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pipe-card rounded-2xl p-4 border border-white/5" data-tags="overnight weekend" style="background:#161E2E">
+          <div class="flex items-start gap-3">
+            <div class="w-2 h-2 rounded-full dot-none flex-shrink-0 mt-1.5"></div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-bold text-slate-200">Container Solutions Inc.</div>
+              <div class="font-mono text-xs text-slate-500 mt-0.5">1-888-289-5155 · service@containersolutions.ca</div>
+              <div class="flex flex-wrap gap-1 mt-2">
+                <span class="tag tag-orange">🌙 24hr</span>
+                <span class="tag tag-muted">Not Contacted</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pipe-card rounded-2xl p-4 border border-white/5" data-tags="overnight weekend" style="background:#161E2E">
+          <div class="flex items-start gap-3">
+            <div class="w-2 h-2 rounded-full dot-none flex-shrink-0 mt-1.5"></div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-bold text-slate-200">National Lumpers</div>
+              <div class="font-mono text-xs text-slate-500 mt-0.5">service@nationallumpers.com</div>
+              <div class="flex flex-wrap gap-1 mt-2">
+                <span class="tag tag-orange">🌙 Flexible</span>
+                <span class="tag tag-muted">Email Pending</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pipe-card rounded-2xl p-4 border border-white/5" data-tags="overnight weekend" style="background:#161E2E">
+          <div class="flex items-start gap-3">
+            <div class="w-2 h-2 rounded-full dot-none flex-shrink-0 mt-1.5"></div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-bold text-slate-200">Direct Lumper Service Inc.</div>
+              <div class="font-mono text-xs text-slate-500 mt-0.5">7270 Torbram Rd, Mississauga</div>
+              <div class="flex flex-wrap gap-1 mt-2">
+                <span class="tag tag-orange">🌙 Full Time GTA</span>
+                <span class="tag tag-muted">Not Contacted</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pipe-card rounded-2xl p-4 border border-white/5" data-tags="overnight" style="background:#161E2E">
+          <div class="flex items-start gap-3">
+            <div class="w-2 h-2 rounded-full dot-none flex-shrink-0 mt-1.5"></div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-bold text-slate-200">Bal — Independent Dispatcher</div>
+              <div class="font-mono text-xs text-slate-500 mt-0.5">647-707-5725 (text only)</div>
+              <div class="flex flex-wrap gap-1 mt-2">
+                <span class="tag tag-orange">🌙 On-Demand</span>
+                <span class="tag tag-muted">Not Contacted</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pipe-card rounded-2xl p-4 border border-white/5" data-tags="overnight" style="background:#161E2E">
+          <div class="flex items-start gap-3">
+            <div class="w-2 h-2 rounded-full dot-none flex-shrink-0 mt-1.5"></div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-bold text-slate-200">Eclipse Advantage / ECM</div>
+              <div class="font-mono text-xs text-slate-500 mt-0.5">905-793-7748 ext.1 · eclipseadvantage.ca</div>
+              <div class="flex flex-wrap gap-1 mt-2">
+                <span class="tag tag-orange">🌙 Night Shift</span>
+                <span class="tag tag-muted">Not Contacted</span>
+              </div>
+              <div class="text-xs text-slate-600 mt-1.5">Active night shift postings Mar 2026. $20–28/hr.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pipe-card rounded-2xl p-4 border border-white/5" data-tags="september weekend" style="background:#161E2E">
+          <div class="flex items-start gap-3">
+            <div class="w-2 h-2 rounded-full dot-sep flex-shrink-0 mt-1.5"></div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-bold text-slate-200">LumpCo</div>
+              <div class="font-mono text-xs text-slate-500 mt-0.5">lumpco.ca/contact</div>
+              <div class="flex flex-wrap gap-1 mt-2">
+                <span class="tag tag-yellow">☀️ Morning/Afternoon</span>
+                <span class="tag tag-purple">📌 Sep 2026</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="page-tax">
+    <div class="px-5 pt-6 space-y-4 stagger">
+      <div class="flex justify-between items-center">
+        <h2 class="font-headline text-2xl font-bold">Tax &amp; Savings</h2>
+        <div class="text-xs font-mono bg-white/5 px-3 py-1 rounded-full text-slate-400">Week View</div>
+      </div>
+
+      <div class="rounded-3xl p-6 border border-white/5" style="background:linear-gradient(135deg,rgba(74,222,128,0.08),transparent)">
+        <div class="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-2">Net Take-Home (After 35% Set-Aside)</div>
+        <div class="font-headline text-5xl font-black text-emerald-400 tracking-tight">$286<span class="text-2xl text-emerald-400/50">.56</span></div>
+        <div class="text-xs text-slate-500 mt-2">From $440.86 gross this week</div>
+      </div>
+
+      <div class="space-y-3">
+        <div class="rounded-2xl p-4 border border-white/5" style="background:#161E2E">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-xl bg-orange-400/10 flex items-center justify-center">🏦</div>
+              <div class="text-sm font-semibold text-slate-200">Tax Set-Aside (35%)</div>
+            </div>
+            <div class="font-mono font-bold text-orange-400">$154.30</div>
+          </div>
+          <div class="h-1.5 rounded-full bg-white/5 overflow-hidden">
+            <div class="h-full bg-orange-400 rounded-full" style="width:35%"></div>
+          </div>
+        </div>
+
+        <div class="rounded-2xl p-4 border border-white/5" style="background:#161E2E">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-xl bg-teal-400/10 flex items-center justify-center">🚗</div>
+              <div class="text-sm font-semibold text-slate-200">Vehicle Deduction (30%)</div>
+            </div>
+            <div class="font-mono font-bold text-teal-400">$18.20</div>
+          </div>
+          <div class="h-1.5 rounded-full bg-white/5 overflow-hidden">
+            <div class="h-full bg-teal-400 rounded-full" style="width:30%"></div>
+          </div>
+        </div>
+
+        <div class="rounded-2xl p-4 border border-white/5" style="background:#161E2E">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-xl bg-blue-400/10 flex items-center justify-center">🥾</div>
+              <div class="text-sm font-semibold text-slate-200">Safety Gear / PPE</div>
+            </div>
+            <div class="font-mono font-bold text-blue-400">$35.00</div>
+          </div>
+          <div class="h-1.5 rounded-full bg-white/5 overflow-hidden">
+            <div class="h-full bg-blue-400 rounded-full" style="width:8%"></div>
+          </div>
+        </div>
+
+        <div class="rounded-2xl p-4 border border-white/5" style="background:#161E2E">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-xl bg-emerald-400/10 flex items-center justify-center">⛽</div>
+              <div class="text-sm font-semibold text-slate-200">Gas (Business %)</div>
+            </div>
+            <div class="font-mono font-bold text-emerald-400">$12.40</div>
+          </div>
+          <div class="h-1.5 rounded-full bg-white/5 overflow-hidden">
+            <div class="h-full bg-emerald-400 rounded-full" style="width:12%"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl p-4 border" style="background:rgba(96,165,250,0.05);border-color:rgba(96,165,250,0.15)">
+        <div class="text-xs font-semibold text-blue-400 mb-1">🏠 Mortgage Readiness</div>
+        <div class="text-xs text-slate-400 leading-relaxed">Two clean NOAs needed. Keep tax set-aside consistent and avoid aggressive write-offs for the next 24 months. Discipline now = home for your family later.</div>
+        <div class="mt-3 flex gap-2">
+          <div class="flex-1 text-center">
+            <div class="font-mono text-sm font-bold text-blue-400">2024</div>
+            <div class="h-1 bg-white/5 rounded-full mt-1"><div class="h-full bg-blue-400/30 rounded-full w-full"></div></div>
+            <div class="text-[9px] text-slate-600 mt-1">NOA Year 1</div>
+          </div>
+          <div class="flex-1 text-center">
+            <div class="font-mono text-sm font-bold text-blue-400">2025</div>
+            <div class="h-1 bg-white/5 rounded-full mt-1"><div class="h-full bg-blue-400/30 rounded-full w-full"></div></div>
+            <div class="text-[9px] text-slate-600 mt-1">NOA Year 2</div>
+          </div>
+          <div class="flex-1 text-center">
+            <div class="font-mono text-sm font-bold text-emerald-400">2026</div>
+            <div class="h-1 bg-white/5 rounded-full mt-1"><div class="h-full bg-emerald-400 rounded-full" style="width:35%"></div></div>
+            <div class="text-[9px] text-slate-600 mt-1">Active ▶</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 border-t border-white/5" style="background:rgba(11,15,26,0.85);backdrop-filter:blur(20px)">
+  <button onclick="switchPage('home')" id="nav-home" class="nav-btn flex flex-col items-center gap-0.5 text-orange-400 px-3 py-1 rounded-xl bg-orange-400/10 transition-all">
+    <span class="material-symbols-outlined fill-icon text-xl">home</span>
+    <span class="text-[9px] font-semibold uppercase tracking-widest">Home</span>
+  </button>
+  <button onclick="switchPage('logs')" id="nav-logs" class="nav-btn flex flex-col items-center gap-0.5 text-slate-500 px-3 py-1 rounded-xl transition-all">
+    <span class="material-symbols-outlined text-xl">assignment</span>
+    <span class="text-[9px] font-semibold uppercase tracking-widest">Logs</span>
+  </button>
+  <button onclick="switchPage('mileage')" id="nav-mileage" class="nav-btn flex flex-col items-center gap-0.5 text-slate-500 px-3 py-1 rounded-xl transition-all">
+    <span class="material-symbols-outlined text-xl">distance</span>
+    <span class="text-[9px] font-semibold uppercase tracking-widest">Mileage</span>
+  </button>
+  <button onclick="switchPage('pipeline')" id="nav-pipeline" class="nav-btn flex flex-col items-center gap-0.5 text-slate-500 px-3 py-1 rounded-xl transition-all">
+    <span class="material-symbols-outlined text-xl">account_tree</span>
+    <span class="text-[9px] font-semibold uppercase tracking-widest">Pipeline</span>
+  </button>
+  <button onclick="switchPage('tax')" id="nav-tax" class="nav-btn flex flex-col items-center gap-0.5 text-slate-500 px-3 py-1 rounded-xl transition-all">
+    <span class="material-symbols-outlined text-xl">receipt_long</span>
+    <span class="text-[9px] font-semibold uppercase tracking-widest">Tax</span>
+  </button>
+</nav>
+
+<button onclick="openModal()" class="fixed bottom-24 right-5 w-14 h-14 rounded-full flex items-center justify-center z-40 text-black font-bold text-2xl transition-all active:scale-95" style="background:linear-gradient(135deg,#FB923C,#F97316);box-shadow:0 0 28px rgba(251,146,60,0.45)">
+  <span class="material-symbols-outlined text-3xl">add</span>
+</button>
+
+<div class="modal-overlay" id="profile-overlay" onclick="if(event.target===this)closeProfile()">
+  <div class="modal-sheet" style="max-height:92vh">
+    <div class="flex items-center justify-between mb-4">
+      <button onclick="closeProfile()" class="flex items-center gap-1.5 text-slate-400 text-sm font-semibold">
+        <span class="material-symbols-outlined text-lg">arrow_back</span> Pipeline
+      </button>
+      <div class="w-10 h-1 bg-white/10 rounded-full"></div>
+      <button class="text-slate-500">
+        <span class="material-symbols-outlined text-lg">edit</span>
+      </button>
+    </div>
+    <div id="profile-body"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal" onclick="handleOverlayClick(event)">
+  <div class="modal-sheet">
+    <div class="w-10 h-1 bg-white/20 rounded-full mx-auto mb-5"></div>
+    <div class="font-headline text-xl font-bold mb-1">Log a Container Job</div>
+    <div class="text-sm text-slate-500 mb-5">Record job details, additives, and location for mileage tracking.</div>
+
+    <div class="space-y-4">
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="form-label">Date</label>
+          <input type="date" class="form-input" value="2026-04-13">
+        </div>
+        <div>
+          <label class="form-label">Company</label>
+          <input type="text" class="form-input" placeholder="e.g. TAS Refrigerated">
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="form-label">Container ID</label>
+          <input type="text" class="form-input" placeholder="e.g. ZCLU9930419" style="font-family:'JetBrains Mono'">
+        </div>
+        <div>
+          <label class="form-label">Pieces</label>
+          <input type="number" class="form-input" placeholder="e.g. 318">
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="form-label">Base Pay ($)</label>
+          <input type="number" class="form-input" placeholder="55.00">
+        </div>
+        <div>
+          <label class="form-label">Multiplier</label>
+          <input type="text" class="form-input" placeholder="e.g. 1.5x">
+        </div>
+      </div>
+      <div>
+        <label class="form-label">Job Site Address (for km calc)</label>
+        <input type="text" class="form-input" placeholder="e.g. 11450 Steeles Ave, Brampton">
+      </div>
+      <div>
+        <label class="form-label">Additives</label>
+        <div class="flex flex-wrap gap-2 mt-1">
+          <span class="add-pill tag tag-muted" onclick="this.classList.toggle('on')">Heavy</span>
+          <span class="add-pill tag tag-muted" onclick="this.classList.toggle('on')">Mixed</span>
+          <span class="add-pill tag tag-muted" onclick="this.classList.toggle('on')">Interlock</span>
+          <span class="add-pill tag tag-muted" onclick="this.classList.toggle('on')">High-Cube</span>
+          <span class="add-pill tag tag-muted" onclick="this.classList.toggle('on')">Tipped</span>
+          <span class="add-pill tag tag-muted" onclick="this.classList.toggle('on')">Same Day</span>
+          <span class="add-pill tag tag-muted" onclick="this.classList.toggle('on')">Holiday</span>
+          <span class="add-pill tag tag-muted" onclick="this.classList.toggle('on')">Labels Out</span>
+        </div>
+        <div class="text-xs text-teal-400 mt-2">📸 Remember to take photos of all additives before submitting in the CLS app</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3 mt-6">
+      <button onclick="closeModal()" class="py-3 rounded-xl border border-white/10 text-slate-400 font-semibold text-sm">Cancel</button>
+      <button onclick="closeModal()" class="py-3 rounded-xl text-black font-bold text-sm" style="background:linear-gradient(135deg,#FB923C,#F97316);box-shadow:0 0 20px rgba(251,146,60,0.3)">💾 Save Job</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const pages = ['home','logs','mileage','pipeline','tax'];
+
+  function switchPage(id) {
+    pages.forEach(p => {
+      document.getElementById('page-' + p).classList.remove('active');
+      const btn = document.getElementById('nav-' + p);
+      if (btn) {
+        btn.classList.remove('text-orange-400','bg-orange-400/10');
+        btn.classList.add('text-slate-500');
+      }
+    });
+    document.getElementById('page-' + id).classList.add('active');
+    const activeBtn = document.getElementById('nav-' + id);
+    if (activeBtn) {
+      activeBtn.classList.add('text-orange-400','bg-orange-400/10');
+      activeBtn.classList.remove('text-slate-500');
+    }
+    window.scrollTo(0,0);
+  }
+
+  const companyData = {
+    cls: {
+      name: 'Canada Lumper Services (CLS)',
+      status: 'active', statusLabel: 'Active — Current Employer',
+      phone: '647-537-0625', email: 'julian@canlumpers.com',
+      address: '2233 Argentia Rd, Mississauga, ON L5N 2X7',
+      availability: '🌙 Overnight', jobsDone: 4, avgPay: '$110.22', reliability: '100%',
+      notes: 'Current employer. Agreement signed Apr 1 2026. Pay via app weekly.',
+      activity: [
+        {icon:'inventory_2', color:'text-orange-400', label:'Container Job — Fresh Taste Produce', sub:'GINGER · 1584 pcs · $187.53', date:'Apr 11'},
+        {icon:'inventory_2', color:'text-teal-400', label:'Container Job — TAS Refrigerated', sub:'FSCU5734460 · 1800 pcs · $75.00', date:'Apr 6'},
+        {icon:'inventory_2', color:'text-teal-400', label:'Container Job — TAS Refrigerated', sub:'KKFU6751964 · Half 3 Ways · $38.33', date:'Apr 6'},
+        {icon:'inventory_2', color:'text-orange-400', label:'Container Job — TAS Refrigerated', sub:'ZCLU9930419 · 318 pcs · $140.00', date:'Apr 1'},
+        {icon:'description', color:'text-blue-400', label:'Agreement Signed', sub:'Subcontractor Agreement · App setup complete', date:'Apr 1'}
+      ]
+    },
+    greatnorth: {
+      name: 'Great North Lumper Services',
+      status: 'sep', statusLabel: 'September 2026 Follow-up',
+      phone: '416-419-5222', email: 'info@greatnorthlumpers.com',
+      address: '6033 Shawson Dr, Unit 25, Mississauga, ON L5T 1H8',
+      availability: '☀️ Morning/Afternoon', jobsDone: 0, avgPay: '—', reliability: '—',
+      notes: 'Replied to text — mornings only. Weekends go to FT staff first. Follow up Sep for FT role.',
+      activity: [
+        {icon:'message', color:'text-green-400', label:'They Replied', sub:'Morning/Afternoon only. Weekends = FT staff OT.', date:'Apr 13'},
+        {icon:'phone_iphone', color:'text-blue-400', label:'Text Sent', sub:'Intro message sent 12:50AM', date:'Apr 13'}
+      ]
+    },
+    trojan: {
+      name: 'Trojan Lumping Services',
+      status: 'sent', statusLabel: 'Texted — Awaiting Reply',
+      phone: '416-716-1404', email: 'stevenjames@trojanlumping.com',
+      address: '7035 Ordan Drive, Mississauga, ON L5T 1R1',
+      availability: '🌙 Overnight + 📅 Weekend', jobsDone: 0, avgPay: '—', reliability: '—',
+      notes: 'Brampton/Mississauga. Overnight + weekends. Owner: Steven James Kucher. High priority.',
+      activity: [
+        {icon:'phone_iphone', color:'text-blue-400', label:'Text Sent', sub:'Intro message sent', date:'Apr 13'}
+      ]
+    },
+    containerguyz: {
+      name: 'Container Guyz',
+      status: 'sent', statusLabel: 'Texted — Awaiting Reply',
+      phone: '647-234-4214', email: 'containerguyz@gmail.com',
+      address: '462 Hyacinthe Blvd, Mississauga, ON',
+      availability: '🌙 Overnight', jobsDone: 0, avgPay: '—', reliability: '—',
+      notes: 'Fastest growing lumper company in Mississauga. Apply form at containerguyz.ca.',
+      activity: [
+        {icon:'phone_iphone', color:'text-blue-400', label:'Text Sent', sub:'Intro message sent', date:'Apr 13'}
+      ]
+    },
+    bcs: {
+      name: 'Brothers Container Service (BCS)',
+      status: 'sent', statusLabel: 'Texted — Awaiting Reply',
+      phone: '416-908-7581', email: 'containerservices.ca/contact-bcs',
+      address: 'GTA & Southern Ontario',
+      availability: '🌙 24/7 + 📅 Weekend', jobsDone: 0, avgPay: '—', reliability: '—',
+      notes: '24/7 service since 2007. Sales: Wojtek Oles 416-908-7581. Ops: Norbert Kolcz 905-399-1354.',
+      activity: [
+        {icon:'phone_iphone', color:'text-blue-400', label:'Text Sent', sub:'Intro message sent', date:'Apr 13'}
+      ]
+    }
+  };
+
+  function openProfile(key) {
+    const co = companyData[key];
+    if (!co) return;
+
+    const statusColors = {
+      active:  'text-orange-400 bg-orange-400/10 border-orange-400/20',
+      sep:     'text-purple-400 bg-purple-400/10 border-purple-400/20',
+      sent:    'text-blue-400  bg-blue-400/10  border-blue-400/20',
+      replied: 'text-green-400 bg-green-400/10 border-green-400/20'
+    };
+    const dotColors = {
+      active:  'background:#FB923C;box-shadow:0 0 6px #FB923C',
+      sep:     'background:#A78BFA;box-shadow:0 0 6px #A78BFA',
+      sent:    'background:#60A5FA;box-shadow:0 0 6px #60A5FA',
+      replied: 'background:#4ADE80;box-shadow:0 0 6px #4ADE80'
+    };
+
+    const actHTML = co.activity.map(a => `
+      <div class="flex items-center gap-3 p-3 rounded-xl border border-white/5" style="background:#161E2E">
+        <div class="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined text-lg ${a.color}">${a.icon}</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-semibold text-slate-200 truncate">${a.label}</div>
+          <div class="text-xs text-slate-500 truncate">${a.sub}</div>
+        </div>
+        <div class="text-xs font-mono text-slate-600 flex-shrink-0">${a.date}</div>
+      </div>`).join('');
+
+    document.getElementById('profile-body').innerHTML = `
+      <section class="rounded-2xl p-5 border border-white/5 mb-4" style="background:#161E2E;border-left:3px solid #FB923C">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border ${statusColors[co.status]}">
+            <span class="w-1.5 h-1.5 rounded-full" style="${dotColors[co.status]}"></span>
+            ${co.statusLabel}
+          </span>
+        </div>
+        <h2 class="font-headline text-2xl font-bold text-white tracking-tight mb-4">${co.name}</h2>
+        <div class="flex gap-2 flex-wrap">
+          <a href="tel:${co.phone}" class="flex items-center gap-1.5 px-4 py-2 rounded-xl text-black text-xs font-bold uppercase tracking-wider" style="background:linear-gradient(135deg,#FB923C,#F97316)">
+            <span class="material-symbols-outlined text-sm">call</span>Call
+          </a>
+          <a href="sms:${co.phone}" class="flex items-center gap-1.5 px-4 py-2 rounded-xl text-slate-300 text-xs font-bold uppercase tracking-wider border border-white/10" style="background:#1A2436">
+            <span class="material-symbols-outlined text-sm">message</span>Text
+          </a>
+          <a href="mailto:${co.email}" class="flex items-center gap-1.5 px-4 py-2 rounded-xl text-slate-300 text-xs font-bold uppercase tracking-wider border border-white/10" style="background:#1A2436">
+            <span class="material-symbols-outlined text-sm">mail</span>Email
+          </a>
+        </div>
+      </section>
+
+      <div class="grid grid-cols-3 gap-3 mb-4">
+        <div class="rounded-xl p-3 border border-white/5 text-center" style="background:#161E2E">
+          <div class="font-mono text-xl font-bold text-orange-400">${co.jobsDone}</div>
+          <div class="text-[9px] text-slate-500 uppercase tracking-wider mt-0.5">Jobs Done</div>
+        </div>
+        <div class="rounded-xl p-3 border border-white/5 text-center" style="background:#161E2E">
+          <div class="font-mono text-xl font-bold text-teal-400">${co.avgPay}</div>
+          <div class="text-[9px] text-slate-500 uppercase tracking-wider mt-0.5">Avg Pay</div>
+        </div>
+        <div class="rounded-xl p-3 border border-white/5 text-center" style="background:#161E2E">
+          <div class="font-mono text-xl font-bold text-blue-400">${co.reliability}</div>
+          <div class="text-[9px] text-slate-500 uppercase tracking-wider mt-0.5">Reliability</div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl p-4 border border-white/5 mb-4 space-y-3" style="background:#161E2E">
+        <div class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">Contact</div>
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined text-orange-400 text-lg">phone_iphone</span>
+          <div>
+            <div class="text-[9px] text-slate-600 uppercase tracking-wider">Phone</div>
+            <div class="text-sm font-semibold text-slate-200">${co.phone}</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined text-orange-400 text-lg">mail</span>
+          <div>
+            <div class="text-[9px] text-slate-600 uppercase tracking-wider">Email</div>
+            <div class="text-sm font-semibold text-slate-200">${co.email}</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined text-orange-400 text-lg">location_on</span>
+          <div>
+            <div class="text-[9px] text-slate-600 uppercase tracking-wider">Location</div>
+            <div class="text-sm font-semibold text-slate-200">${co.address}</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined text-teal-400 text-lg">schedule</span>
+          <div>
+            <div class="text-[9px] text-slate-600 uppercase tracking-wider">Availability</div>
+            <div class="text-sm font-semibold text-slate-200">${co.availability}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl p-4 border mb-4" style="background:rgba(251,146,60,0.05);border-color:rgba(251,146,60,0.15)">
+        <div class="text-xs font-bold uppercase tracking-widest text-orange-400 mb-2">📋 Notes</div>
+        <div class="text-sm text-slate-300 leading-relaxed">${co.notes}</div>
+      </div>
+
+      <div class="mb-2">
+        <div class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">Activity Log</div>
+        <div class="space-y-2">${actHTML}</div>
+      </div>
+    `;
+
+    document.getElementById('profile-overlay').classList.add('open');
+  }
+
+  function closeProfile() {
+    document.getElementById('profile-overlay').classList.remove('open');
+  }
+
+  function openModal() {
+    document.getElementById('modal').classList.add('open');
+  }
+  function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+  }
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('modal')) closeModal();
+  }
+
+  function filterPipe(el, cat) {
+    document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    document.querySelectorAll('.pipe-card').forEach(card => {
+      const tags = card.dataset.tags || '';
+      card.style.display = (cat === 'all' || tags.includes(cat)) ? 'block' : 'none';
+    });
+  }
+</script>
+
+</body>
 </html>
