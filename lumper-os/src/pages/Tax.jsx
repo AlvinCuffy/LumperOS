@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { saveStub, listStubs, deleteStub, viewStub } from '../utils/stubStore.js';
+import { PAYSTUBS, PAYSTUB_YTD } from '../paystubs.js';
 
 const STATIC_DEDUCTIONS = [
   { icon: '🚗', label: 'Vehicle Deduction (30%)', color: 'text-teal-400',   barColor: 'bg-teal-400',   pct: 30, fixed: null },
@@ -115,6 +116,34 @@ export default function Tax({ jobs = [] }) {
                 <div className={`h-full ${y.barColor} rounded-full`} style={{ width: y.width }} />
               </div>
               <div className="text-[9px] text-slate-600 mt-1">{y.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Pay Stub Ledger — Canada Lumper Services, from Alvin's email (Nov 24, 2026) */}
+      <div>
+        <div className="flex justify-between items-center mb-3">
+          <div>
+            <h3 className="font-headline text-lg font-bold">Pay Stubs — Canada Lumper Services</h3>
+            <div className="text-xs text-slate-500 mt-0.5">{PAYSTUBS.length} stubs · Apr–Nov 2026</div>
+          </div>
+          <div className="text-right">
+            <div className="font-headline text-xl font-bold text-orange-400">${fmt(PAYSTUB_YTD)}</div>
+            <div className="text-[9px] font-semibold uppercase tracking-widest text-slate-500">Year to Date</div>
+          </div>
+        </div>
+        <div className="space-y-2">
+          {[...PAYSTUBS].reverse().map(stub => (
+            <div key={stub.ref} className="rounded-2xl p-4 border border-white/5 flex items-center gap-3" style={{ background: '#161E2E' }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(251,146,60,0.1)' }}>
+                <span className="material-symbols-outlined text-orange-400 text-xl">payments</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-semibold text-slate-200">{fmtDate(stub.periodStart)} – {fmtDate(stub.periodEnd)}</div>
+                <div className="text-xs text-slate-500 mt-0.5">Paid {fmtDate(stub.payDate)}</div>
+              </div>
+              <div className="font-mono font-semibold text-emerald-400">${fmt(stub.gross)}</div>
             </div>
           ))}
         </div>
