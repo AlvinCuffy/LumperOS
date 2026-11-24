@@ -21,9 +21,11 @@ const SEED_JOBS = [
   { id: 9,  date: '2026-04-16', company: 'TAS Refrigerated Distribution', containerId: 'MNBU4676105', pieces: 1160, basePay: 110.00, multiplier: '',    address: '18 Abacus Road, Brampton', additives: ['Heavy'],                                   status: 'paid' },
   { id: 10, date: '2026-04-20', company: 'TAS Refrigerated Distribution', containerId: 'SEGU9688486', pieces: 1800, basePay: 60.00,  multiplier: '',    address: '18 Abacus Road, Brampton', additives: ['Interlock','Labels Out'],                  status: 'pending' },
   { id: 11, date: '2026-04-23', company: 'TAS Refrigerated Distribution', containerId: 'Repile',      pieces: 1820, basePay: 60.00,  multiplier: '',    address: '18 Abacus Road, Brampton', additives: [],                                          status: 'pending' },
+  { id: 12, date: '2026-11-24', company: 'Farm Boy Inc',                  containerId: '',            pieces: null, basePay: 0,      multiplier: '',    address: '6270 Kenway Drive, Mississauga', additives: [],                                      status: 'pending' },
+  { id: 13, date: '2026-11-24', company: 'DHL Trillium',                  containerId: 'MEDU8905976', pieces: null, basePay: 55.00,  multiplier: '',    address: '205 Spiers Giffen Ave, Caledon', additives: [],                                      status: 'pending' },
 ];
 
-const SEED_VERSION = 7;
+const SEED_VERSION = 8;
 
 function loadJobs() {
   try {
