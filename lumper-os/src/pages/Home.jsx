@@ -1,3 +1,5 @@
+import { PAYSTUBS, PAYSTUB_YTD } from '../paystubs.js';
+
 const BAR_HEIGHTS = [30, 45, 35, 60, 50, 75, 80];
 const WEEK_LABELS = ['W1','W2','W3','W4','W5','W6','W7'];
 
@@ -7,7 +9,7 @@ const defaultEmoji = '📦';
 function fmt(n) { return n.toFixed(2); }
 
 export default function Home({ jobs = [], onViewAll, onOpenModal }) {
-  const totalPay   = jobs.reduce((s, j) => s + j.basePay, 0);
+  const totalPay   = PAYSTUB_YTD;
   const taxSaved   = totalPay * 0.35;
   const takeHome   = totalPay * 0.65;
   const companies  = new Set(jobs.map(j => j.company)).size;
@@ -21,7 +23,7 @@ export default function Home({ jobs = [], onViewAll, onOpenModal }) {
         <div className="absolute -right-10 -top-10 w-48 h-48 rounded-full" style={{ background: 'rgba(251,146,60,0.08)', filter: 'blur(40px)' }} />
         <div className="absolute -left-10 -bottom-10 w-40 h-40 rounded-full" style={{ background: 'rgba(45,212,191,0.05)', filter: 'blur(40px)' }} />
         <div className="relative z-10">
-          <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 mb-2">Total Earnings</div>
+          <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 mb-2">Year-to-Date Earnings</div>
           <div className="flex items-baseline gap-1 mb-3">
             <span className="font-headline text-5xl font-black text-orange-400 tracking-tight">
               ${Math.floor(totalPay).toLocaleString()}
@@ -32,7 +34,7 @@ export default function Home({ jobs = [], onViewAll, onOpenModal }) {
           </div>
           <div className="flex items-center gap-2 text-emerald-400 text-xs font-semibold mb-5">
             <span className="material-symbols-outlined text-sm">trending_up</span>
-            <span>{jobs.length} job{jobs.length !== 1 ? 's' : ''} logged</span>
+            <span>{PAYSTUBS.length} pay stubs · Apr–Nov 2026</span>
           </div>
           <div className="flex items-end gap-1 h-12">
             {BAR_HEIGHTS.map((h, i) => (
