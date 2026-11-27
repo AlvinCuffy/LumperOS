@@ -25,9 +25,10 @@ const SEED_JOBS = [
   { id: 13, date: '2026-11-24', company: 'DHL Trillium',                  containerId: 'MEDU8905976', pieces: null, basePay: 55.00,  multiplier: '',    address: '205 Spiers Giffen Ave, Caledon', additives: [],                                      status: 'pending' },
   { id: 14, date: '2026-11-25', company: 'TAS Refrigerated Distribution', containerId: 'MSDU9003000', pieces: null, basePay: 55.00,  multiplier: '',    address: '18 Abacus Road, Brampton', additives: [],                                          status: 'pending' },
   { id: 15, date: '2026-11-25', company: 'TAS Refrigerated Distribution', containerId: 'SZLU9256315', pieces: null, basePay: 55.00,  multiplier: '',    address: '18 Abacus Road, Brampton', additives: [],                                          status: 'pending' },
+  { id: 16, date: '2026-11-26', company: 'TAS Refrigerated Distribution', containerId: 'TEMU9143097', pieces: 2040, basePay: 55.00,  multiplier: '',    address: '18 Abacus Road, Brampton', additives: ['Double Wrap','Interlock','Labels Out','High Cube'], status: 'pending' },
 ];
 
-const SEED_VERSION = 9;
+const SEED_VERSION = 10;
 
 function loadJobs() {
   try {
